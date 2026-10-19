@@ -29,14 +29,23 @@ jobs:
           pandoc --version | head -1
       - name: Review gate (branding, secrets, chapter structure)
         run: python3 scripts/check_book.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: CPU examples and tests
         if: hashFiles('examples/**/*.py') != ''
         run: |
           set -euo pipefail
+          python3 -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
           python3 -m pip install -q -r requirements-examples.txt
+          python3 -m pip check
           python3 -m pytest -q tests
+          python3 scripts/draw_ch01.py
+          git diff --exit-code -- assets/images/
       - name: Build HTML + EPUB
         run: python3 build.py
+      - name: Validate embedded assets and chapter code
+        run: python3 scripts/check_built_book.py
       - name: Validate EPUB
         run: |
           set -euo pipefail

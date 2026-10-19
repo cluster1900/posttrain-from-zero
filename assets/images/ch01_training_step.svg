@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img">
+<title>One optimizer update: token-weighted accumulation</title>
+<rect width="960" height="300" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#44536d"/></marker></defs>
+<g font-family="sans-serif" fill="#18243b">
+<text x="35" y="45" font-size="24" font-weight="bold">One optimizer update: token-weighted accumulation</text>
+<rect x="35" y="90" width="210" height="110" rx="12" fill="white" stroke="#637cb2"/>
+<text x="49" y="125" font-size="19">Count tokens</text>
+<text x="49" y="165" font-size="15">N = all supervised tokens</text>
+<path d="M247 145 L267 145" stroke="#44536d" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="270" y="90" width="210" height="110" rx="12" fill="white" stroke="#637cb2"/>
+<text x="284" y="125" font-size="19">Micro-steps</text>
+<text x="284" y="165" font-size="15">backward(NLL_sum / N)</text>
+<path d="M482 145 L502 145" stroke="#44536d" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="505" y="90" width="210" height="110" rx="12" fill="white" stroke="#637cb2"/>
+<text x="519" y="125" font-size="19">Accumulated grad</text>
+<text x="519" y="165" font-size="15">clip once after all steps</text>
+<path d="M717 145 L737 145" stroke="#44536d" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="740" y="90" width="210" height="110" rx="12" fill="white" stroke="#637cb2"/>
+<text x="754" y="125" font-size="19">Update</text>
+<text x="754" y="165" font-size="15">step, then zero_grad</text>
+<text x="35" y="250" font-size="17">Schematic only. No intermediate optimizer update; no project measurements.</text>
+</g></svg>

@@ -1,7 +1,12 @@
-# 第 1 章等 CPU 示例的固定依赖（CI 用 CPU 版 torch）
---extra-index-url https://download.pytorch.org/whl/cpu
+# 独立 CPU 教学环境，非源项目生产依赖。建议 Python 3.11 或 3.12。
+# 先安装 CPU wheel，再安装本文件，避免从默认索引安装 GPU 运行时依赖。
+# python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+# python -m pip install -r requirements-examples.txt
+# python examples/ch01_pytorch.py all
+# python -m pytest -q tests
 torch==2.10.0
 numpy==2.3.4
-transformers==5.6.0   # 第 6 章：微型 Qwen3.5 模块树
-peft==0.18.1          # 第 6 章：LoRA 目标与可训练参数
 pytest==8.4.2
+transformers==5.6.0
+tokenizers==0.22.2
+peft==0.18.1

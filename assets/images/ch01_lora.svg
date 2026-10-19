@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="340" viewBox="0 0 960 340" role="img">
+<title>LoRA parallel paths: frozen base plus trainable low-rank update</title>
+<rect width="960" height="340" fill="#f7f8fc"/>
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#44536d"/></marker></defs>
+<g font-family="sans-serif" fill="#18243b"><text x="35" y="40" font-size="23" font-weight="bold">LoRA: parallel paths, then addition</text>
+<g fill="white" stroke="#637cb2"><rect x="35" y="140" width="120" height="60" rx="10"/><rect x="280" y="65" width="270" height="65" rx="10"/><rect x="280" y="215" width="270" height="65" rx="10"/><circle cx="685" cy="170" r="28"/><rect x="785" y="140" width="140" height="60" rx="10"/></g>
+<g font-size="19"><text x="55" y="177">Input x</text><text x="300" y="103">Frozen base: W x</text><text x="296" y="242">Trainable: (alpha / r) B A x</text><text x="676" y="177">+</text><text x="801" y="177">Output y</text></g>
+<g fill="none" stroke="#44536d" stroke-width="2" marker-end="url(#a)"><path d="M155 170 H205 V97 H278"/><path d="M205 170 V247 H278"/><path d="M550 97 H615 V155 L657 165"/><path d="M550 247 H615 V185 L657 175"/><path d="M713 170 H783"/></g>
+<text x="35" y="320" font-size="16">Schematic only. A: r x d_in; B: d_out x r. Base weights stay frozen.</text></g></svg>

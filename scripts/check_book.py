@@ -57,8 +57,10 @@ def main():
         rel = path.relative_to(ROOT).as_posix()
         text = path.read_text(encoding="utf-8")
         for no, line in enumerate(text.splitlines(), 1):
-            if OLD in line.lower():
-                allowed = CREDIT_FILE.search(path.name) and not CREDIT_IDS.sub("", line).lower().count(OLD)
+            # softmax is a standard operator, not the legacy project identifier.
+            brand_line = re.sub(r"\b(?:log_)?softmax\b", "", line, flags=re.I)
+            if OLD in brand_line.lower():
+                allowed = CREDIT_FILE.search(path.name) and not CREDIT_IDS.sub("", brand_line).lower().count(OLD)
                 if not allowed:
                     errors.append(f"{rel}:{no}: A1 旧方法名")
             for rule, pat in SECRET_RULES.items():
