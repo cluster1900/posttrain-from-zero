@@ -4,7 +4,7 @@
 
 [在线阅读](https://cluster1900.github.io/posttrain-from-zero/) · [Releases（EPUB / 离线网页包）](https://github.com/cluster1900/posttrain-from-zero/releases)
 
-一本基于真实项目的中文后训练书：在官方 `Qwen/Qwen3.5-2B-Base` 上，按 TMAX 方法完成数据冻结 → LoRA SFT → outcome-only RL（DPPO）→ Terminal-Bench 2.0 全量评测的完整过程。第 1 章讲 PyTorch 基础，之后按时间顺序讲每一步的做法、原因、踩过的坑、解决办法、耗时和调整。
+一本基于真实项目的中文后训练书：在官方 `Qwen/Qwen3.5-2B-Base` 上，用作者自行设计的 **Apexo 后训练流程**完成数据冻结 → LoRA SFT → outcome-only RL（DPPO）→ Terminal-Bench 2.0 全量评测的完整过程。第 1 章讲 PyTorch 基础，之后按时间顺序讲每一步的做法、原因、踩过的坑、解决办法、耗时和调整。
 
 > **状态**：写作中。目前只有前言和[详细大纲](docs/outline.md)。
 

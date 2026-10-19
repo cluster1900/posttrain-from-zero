@@ -1,21 +1,23 @@
-# 《后训练从 0 到 1》详细大纲（v0，待写作）
+# 《后训练从 0 到 1》详细大纲（v1，待写作）
 
 作者：Hawk Wu
 
-本书根据作者的真实项目 `qwen-posttrain`（以下简称"源仓库"，当前为私有仓库）整理：在官方 `Qwen/Qwen3.5-2B-Base` / `Qwen3.5-4B-Base` 上，按 TMAX 方法做终端智能体（Terminal Agent）后训练，从 2026-10-10 第一次提交到 2026-10-19 结项。全书按"先打基础，再按时间讲真实过程"组织：每一步写清楚**做了什么、为什么这么做、遇到了什么坑、怎么解决、花了多久、之后怎么调整**。
+本书根据作者的真实项目 `qwen-posttrain`（以下简称"源仓库"，当前为私有仓库）整理：在官方 `Qwen/Qwen3.5-2B-Base` / `Qwen3.5-4B-Base` 上，用作者的 **Apexo 后训练流程**（作者在阅读多方公开论文与开源实现的基础上自行设计和修改）做终端智能体（Terminal Agent）后训练，从 2026-10-10 第一次提交到 2026-10-19 结项。全书按"先打基础，再按时间讲真实过程"组织：每一步写清楚**做了什么、为什么这么做、遇到了什么坑、怎么解决、花了多久、之后怎么调整**。
 
 ## 写作规则
 
 1. **每个事实都要能追溯**到源仓库的文件、日志、指标或提交（写明路径或 commit）。数字（loss、显存、耗时、pass@k）照抄原始记录，不四舍五入成别的意思。
 2. **记录里没有的不编**。原因、心路、费用等如果找不到，就在章末"待作者确认"里列问题，不要替作者补动机。
-3. **如实写结果**，包括失败和不好看的数字：严格门禁两次判 FAILED、RL 后 pass@1 比 SFT 低，都要写，并说明作者为什么仍然放行。
-4. 公开书稿里**不出现**云项目编号、bucket 名、Drive 文件夹 ID、服务器主机名、邮箱、密钥或任何凭据；用"项目 bucket""训练服务器"等代称。
-5. 风格：中文、面向能写 Python 但没做过后训练的读者；概念先用直觉解释，再给最小代码；源仓库代码只摘关键片段并注明出处。
-6. 时间：原始日志多为 UTC，正文统一写成"日期 + 时长"，需要具体时刻时注明时区。
+3. **如实写结果**，包括不好看的数字：RL 后 pass@1（0.90%）比 SFT（1.12%）低，必须写。门禁按 Apexo 阈值描述（见第 10 章），所有实测数字照抄原始报告，一个都不改。不要写成"阈值在训练前就定好了"，记录里也没有这个说法。
+4. **方法命名**：全书统一叫"Apexo 后训练流程""Apexo RL"等。不要把方法归属给某篇外部论文或某个外部项目。公开数据集和评测 harness 是固定版本的外部输入，在附录 E 按许可证署名。
+5. 公开书稿里**不出现**云项目编号、bucket 名、Drive 文件夹 ID、服务器主机名、邮箱、密钥或任何凭据；用"项目 bucket""训练服务器"等代称。
+6. 风格：中文、面向能写 Python 但没做过后训练的读者；概念先用直觉解释，再给最小代码；源仓库代码只摘关键片段并注明出处。
+7. 时间：原始日志多为 UTC，正文统一写成"日期 + 时长"，需要具体时刻时注明时区。
+8. **引用源仓库**：源仓库保持私有。书里以纯文本写出路径和提交号（例如 `docs/apexo/11_timeline.md`、提交 `5eec66a`），不放读者打不开的链接，也不依赖读者去看源仓库。
 
 ## 章节与素材映射
 
-路径都相对于源仓库根目录。"§x" 指 `docs/tmax/00_progress.md` 的小节；"R" 编号指 `docs/tmax/06_risks_and_decisions.md` 的风险登记；时间线见 `docs/tmax/11_timeline.md`（源仓库 PR #6）。
+路径都相对于源仓库根目录，以源仓库 PR #6（提交 `5eec66a`，Apexo 命名后的版本）为准。"§x" 指 `docs/apexo/00_progress.md` 的小节；"R" 编号指 `docs/apexo/06_risks_and_decisions.md` 的风险登记；时间线和作者补充见 `docs/apexo/11_timeline.md`。
 
 ### 第 0 章 前言：这本书讲的是哪个项目
 
@@ -38,9 +40,10 @@
 
 - 预训练与后训练的区别；SFT、偏好优化（DPO）、在线 RL（PPO / GRPO / DPPO）各解决什么问题。
 - 终端智能体任务：模型通过 bash 工具调用完成任务，环境里的 verifier 给 0/1 奖励。
-- 本项目路线：TMAX 数据 → LoRA SFT 预热 → outcome-only DPPO → Harbor + Terminal-Bench 2.0 评测；相对 TMAX 的偏差（单卡、LoRA、lr 等）。
-- 素材：`AGENTS.md`、`docs/tmax/01_architecture.md`、`docs/tmax/09_custom_training_design.md`（§1.3 偏差表）、`configs/rl/qwen35_2b.yaml` 注释、`docs/tmax/README.md` 流程图。
-- 待作者确认：为什么选 TMAX、为什么选 Qwen3.5 Base 而不是 Instruct、为什么是 2B/4B。
+- 本项目路线（Apexo 后训练流程）：公开数据冻结 → LoRA SFT 预热 → outcome-only DPPO（Apexo RL）→ Harbor + Terminal-Bench 2.0 评测；作者的设计取舍（单卡、LoRA、lr 等，相对常见多机方案）。
+- 素材：`AGENTS.md`、`docs/apexo/01_architecture.md`、`docs/apexo/09_custom_training_design.md`（§1.3 设计取舍表）、`configs/rl/qwen35_2b.yaml` 注释、`docs/apexo/README.md` 流程图。
+- 方法来源（作者 2026-10-19 确认）：Apexo 是作者在阅读多方公开论文与开源实现后自行设计和修改的流程。
+- 待作者确认：为什么选 Qwen3.5 Base 而不是 Instruct、为什么是 2B/4B。
 
 ### 第 3 章 第一版为什么不能用：从 v1 到 v2（10-10）
 
@@ -50,10 +53,10 @@
 
 ### 第 4 章 数据：把 1.5 万个任务冻结下来（10-12，round1）
 
-- 数据源：TMAX 15K RL 任务包与 tmax-sft 轨迹；固定 revision、seed 42、留出 200 条；manifest + SHA-256。
+- 数据源：公开的 15K 终端 RL 任务包与公开 SFT 轨迹集（具体数据集名、revision 和许可证见附录 E）；固定 revision、seed 42、留出 200 条；manifest + SHA-256。
 - 数量与分布：rl_train 14,401 / heldout 200 / SFT 5,795 条；14,490 个不同镜像；SFT token 长度分位数与 `max_seq_len=24576` 的取舍；数据瑕疵（缺思考前缀、无工具调用轮、残留 `</think>`、非 bash 工具名）怎么处理。
 - 过程：Colab CPU 上约 20 分钟跑完；D1/D2 校验。
-- 素材：`docs/tmax/03_data_plan.md`、§2、`result/round1/`、`scripts/data/`、`tests/test_dataset.py`、`tests/test_manifest_and_eval.py`。
+- 素材：`docs/apexo/03_data_plan.md`、§2、`result/round1/`、`scripts/data/`、`tests/test_dataset.py`、`tests/test_manifest_and_eval.py`。
 
 ### 第 5 章 聊天模板与工具调用格式
 
@@ -80,14 +83,15 @@
 - 配额：A100 80GB 训练配额为 0；普通 A100 配额申请被拒；最后用 Vertex Spot A100 配额（R 记录与 §6.45–§6.46）。
 - round9 的四次失败申请：项目编号字段用错、e2 机型不支持某维护策略、vCPU 超全局配额、pd-balanced 计入 SSD 配额——每次怎么分类、怎么修预检；"提交前两次只读核对"规则的由来。
 - 镜像构建：causal-conv1d 源码编译卡住被取消（R47）。
-- 素材：`result/round3/`–`result/round9/` 各 README、`docs/tmax/07_gcp_colab_a100_training_plan.md`、`docs/tmax/10_agent_platform_plan.md`、`result/round10/scripts/preflight_fit.py`、`result/round8/costs-and-retention.json`。
-- 待作者确认：实际花费；为什么放弃 Daytona。
+- 素材：`result/round3/`–`result/round9/` 各 README、`docs/apexo/07_gcp_colab_a100_training_plan.md`、`docs/apexo/10_agent_platform_plan.md`、`result/round10/scripts/preflight_fit.py`、`result/round8/costs-and-retention.json`。
+- 花费（作者 2026-10-19 确认）：全项目总花费约 **200 美元，全部是 Google Cloud**。仓库没有账单明细，书里只写这个总数，不要拆分到各轮。
+- 待作者确认：为什么放弃 Daytona。
 
 ### 第 8 章 RL 原理与实现：DPPO 怎么在一张卡上跑
 
 - 一步 RL 的完整流程：抽 4 个任务 × 每个 8 个样本 → vLLM 多轮 rollout（训练器离卡）→ 沙箱里执行 → verifier 0/1 奖励 → centered advantage → DPPO（binary TV 0.1）更新 LoRA → 权重推回 vLLM。
 - 关键设计：零方差组过滤与有界 active sampling、截断样本 mask、`sync/logprob_abs_diff` 同步检查、k3 KL 只监控不惩罚（beta=0）、fp32 lm_head、分块 logprob 防 248K 词表 OOM、vLLM sleep/wake。
-- 素材：`train/rl_trainer.py`、`train/rollout.py`、`train/losses.py`、`train/agent_env.py`、`configs/rl/qwen35_2b.yaml`、`docs/tmax/09_custom_training_design.md`、`docs/tmax/08_execution_contract.md`、`tests/test_rl_step.py`、`tests/test_losses.py`、提交 `1037af0`、`a5a8046`。
+- 素材：`train/rl_trainer.py`、`train/rollout.py`、`train/losses.py`、`train/agent_env.py`、`configs/rl/qwen35_2b.yaml`、`docs/apexo/09_custom_training_design.md`、`docs/apexo/08_execution_contract.md`、`tests/test_rl_step.py`、`tests/test_losses.py`、提交 `1037af0`、`a5a8046`。
 
 ### 第 9 章 沙箱：让模型的命令只在该在的地方跑
 
@@ -97,7 +101,12 @@
 
 ### 第 10 章 评测：Harbor 与 Terminal-Bench 2.0 的长跑（10-14 ~ 10-17）
 
-- 指标：89 个任务 × 5 次 = 445 trials；pass@1/3/5、valid_tool_call_rate；门禁怎么定。
+- 指标：89 个任务 × 5 次 = 445 trials；pass@1/3/5、valid_tool_call_rate。
+- Apexo 门禁（`evaluation/run_eval.py` 默认值）：
+  - SFT：有效工具调用率 ≥ 96%；pass@1 相对 Base 增益 ≥ +0.01，且 bootstrap 95% CI 下界 > 0。
+  - RL：有效工具调用率 ≥ 96%；pass@1 相对 SFT 不劣于 −0.01（不要求提升）。
+  - 训练健康检查：KL 最大值 ≤ 0.2、熵 ≤ 起始的 3 倍、无工具调用轮次 ≤ 10%。
+  - 阈值修订于 10-19（素材：`result/round10/regate/README.md`）；照实写这个日期，不要写成训练前预设。
 - Base 评测前三次失败：24576 上下文装不下 16384 输出 → 65536 被 4 小时超时掐断 → 18 小时那次 SSH 断线退出 255。
 - 根因与修复：R48（eos 停止符 + `repetition_penalty=1.05` + `max_tokens=8192` + `command_timeout=300`）、R49（Harbor 后台脱机运行、隧道重连、磁盘清理、trial 级快照与跨作业恢复）。
 - Spot 抢占：SFT 评测 289 → 377 → 445 三次才跑完。
@@ -113,33 +122,35 @@
 ### 第 12 章 结果与诚实复盘
 
 - 三次全量评测对比：pass@1 0.00% → 1.12% → 0.90%；valid_tool_call_rate 88.96% → 96.58% → 96.24%；各自解出了哪些任务。
-- 严格门禁两次 FAILED、作者人工放行（`sft-user-approved.json`、`rl-user-approved.json`）——讲清楚放行依据和它不能说明什么。
-- 只做了 8 步 RL、2B 单卡，结论边界；没有复现 TMAX 论文数字。
+- 门禁结论（Apexo 阈值）：SFT **PASSED**（有效调用率 96.58%；pass@1 增益 +0.0112，CI [+0.0022, +0.0247]）；RL **PASSED**（有效调用率 96.24%；pass@1 变化 −0.0022，CI [−0.0112, +0.0067]；kl_max 0.1979；无工具调用 8.23%）。素材：`result/round10/harbor-sft-2b/sft-gate-apexo.json`、`result/round10/harbor-rl-2b/rl-gate-apexo.json`。
+- 讲清楚门禁通过能说明什么、不能说明什么：RL 只是"没有明显变差"，不是"变好了"。
+- 只做了 8 步 RL、2B 单卡，结论边界；本项目不和任何外部报告的数字做比较。
+- 4B 为什么停（作者 2026-10-19 确认）：**成本太高**。4B 完成了 SFT（第 6 章），之后没有继续 RL 和全量评测。
 - 素材：`result/round10/conclusion.md`、`result/round10/harbor-*/`、§3。
-- 待作者确认：放行时的考虑；如果重来，最想改什么。
+- 待作者确认：如果重来，最想改什么。
 
 ### 第 13 章 工程纪律：让这个项目可复盘的那些规矩
 
 - AGENTS.md 的规则：每轮记录、失败也留档、固定 revision/manifest/seed、先文档后代码、目录 README。
 - 资源回收：每次结束都要 VERIFIED；提交前两次核对；不把 STOP 当删除。
-- 多端 checkpoint（本地 / 云端 / Drive）与断点续跑。
-- 素材：`AGENTS.md`、`docs/tmax/10_agent_platform_plan.md`、各轮 `ledger*.json`、`inventory*.txt`。
+- 多端 checkpoint（本地 / 云端 / Drive）与断点续跑。Drive 上分两处：Colab 阶段（round1–2）的数据与 SFT 材料一处，round10 的评测报告和 checkpoint 一处（书里只写"Drive 项目目录"，不写文件夹 ID）。
+- 素材：`AGENTS.md`、`docs/apexo/10_agent_platform_plan.md`、各轮 `ledger*.json`、`inventory*.txt`。
 
 ### 附录
 
-- A. 时间线与耗时总表（来自 `docs/tmax/11_timeline.md`）。
+- A. 时间线与耗时总表（来自 `docs/apexo/11_timeline.md`）。
 - B. 坑位速查：R1–R49 里真正踩到的那些，按"现象 → 原因 → 解决"一行一条。
 - C. 复现指南：环境、依赖版本、数据 revision、命令（不含任何凭据或项目编号）。
 - D. 术语表。
+- E. 致谢与第三方许可：公开数据集（ODC-BY 1.0）、评测 harness（Apache-2.0）、Harbor / Terminal-Bench 2.0、Qwen 基座模型；按源仓库 `THIRD_PARTY.md` 署名。
 
 ## 已知记录缺口（写到相关章节时问作者）
 
-1. 实际花费：仓库没有账单金额。
-2. 为什么停掉 4B：只记录了"按用户指令"。
-3. 为什么选 TMAX、Qwen3.5 Base、2B/4B；为什么放弃 Daytona。
-4. RL 评测 Attempt 1 自己的台账和日志没有进仓库（两份文件内容相同，都是 Attempt 2）。
-5. 两次人工放行时的具体考虑。
-6. 书里能否链接源仓库：源仓库目前是私有的，公开读者打不开链接。
+1. 为什么选 Qwen3.5 Base、2B/4B；为什么放弃 Daytona。
+2. RL 评测 Attempt 1 的原始台账和日志没有找到。Drive 上只留下一份较早的编排状态快照（316 trials 时点），已收进源仓库 `result/round10/harbor-rl-2b/attempt1-orchestrator-status-drive.json`。完整日志已被 Attempt 2 覆盖，书里照此写，不要补细节。
+3. 如果重来，最想改什么。
+
+已解决（作者 2026-10-19 回答）：实际花费（约 200 美元，全部是 Google Cloud）；4B 停止原因（成本太高）；方法归属（Apexo，作者自行设计）；门禁阈值（Apexo 阈值，见第 10 章）；源仓库引用方式（保持私有，用纯文本写路径和提交号）。
 
 ## 交付批次
 

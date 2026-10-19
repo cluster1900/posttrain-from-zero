@@ -2,4 +2,5 @@
 
 ## 未发布
 
+- 大纲 v1：方法统一命名为 Apexo 后训练流程；源材料路径改为 `docs/apexo/`；补充作者 2026-10-19 的回答（总花费约 200 美元，全部是 Google Cloud；4B 因成本停止；Apexo 门禁阈值；Drive 材料位置）；新增附录 E（第三方许可）；更新已知缺口。
 - 建立仓库：前言、详细大纲、Pandoc 构建（网页 + EPUB）、GitHub Pages 与 Release 工作流。
