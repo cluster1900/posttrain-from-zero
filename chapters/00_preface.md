@@ -6,4 +6,31 @@
 
 第 1 章先补上读懂后训练代码需要的 PyTorch 基础。从第 2 章起按时间顺序讲整个过程：每一步做了什么、为什么这样做、遇到了哪些坑、怎么解决的、花了多长时间、之后又做了哪些调整。书中的数字都来自项目的训练日志、指标文件和提交记录。
 
+## 全书路线图
+
+```{.mermaid #fig-roadmap caption="图 0-1　全书路线图：先打基础，再按时间顺序走完整个项目"}
+flowchart TB
+  subgraph A[基础]
+    direction LR
+    C1[第 1 章<br/>PyTorch 入门] --> C2[第 2 章<br/>后训练全景与路线]
+  end
+  subgraph B[准备]
+    direction LR
+    C3[第 3 章<br/>从 v1 到 v2] --> C4[第 4 章<br/>数据冻结] --> C5[第 5 章<br/>聊天模板与工具调用] --> C6[第 6 章<br/>模型结构与 LoRA 选型]
+  end
+  subgraph C[训练]
+    direction LR
+    C7[第 7 章<br/>SFT] --> C8[第 8 章<br/>算力] --> C9[第 9 章<br/>RL 原理与实现] --> C10[第 10 章<br/>沙箱]
+  end
+  subgraph D[评测与判定]
+    direction LR
+    C11[第 11 章<br/>评测] --> C12[第 12 章<br/>RL 实跑] --> C13[第 13 章<br/>成败判定]
+  end
+  subgraph E[复盘]
+    direction LR
+    C14[第 14 章<br/>结果与复盘] --> C15[第 15 章<br/>工程纪律]
+  end
+  A --> B --> C --> D --> E
+```
+
 作者：Hawk Wu
