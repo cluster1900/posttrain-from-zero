@@ -1,0 +1,41 @@
+name: Release EPUB and web bundle
+
+# 推送 vX.Y.Z 标签时，构建并把 EPUB、离线网页包附到同名 Release。
+# Release 说明（中文更新日志）由维护者在创建 Release 时填写。
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)attach files to
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - name: Install pandoc
+        run: |
+          curl -fsSL -o /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/3.5/pandoc-3.5-1-amd64.deb
+          sudo dpkg -i /tmp/pandoc.deb
+      - name: Build
+        run: |
+          python3 build.py
+          (cd dist && zip -qr ../posttrain-from-zero-web.zip . -x posttrain-from-zero.epub)
+          cp dist/posttrain-from-zero.epub .
+          sha256sum posttrain-from-zero.epub posttrain-from-zero-web.zip > SHA256SUMS.txt
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes "见 CHANGELOG.md"
+          gh release upload "$TAG" posttrain-from-zero.epub posttrain-from-zero-web.zip SHA256SUMS.txt --clobber
