@@ -51,4 +51,4 @@ Apexo 用作项目流程名，不据此删除公开算法归属。本批未复�
 
 ## 实测图与示意图
 
-`assets/images/ch00_metrics.svg` 由 `scripts/draw_ch01.py` 根据 `scripts/data/batch1_metrics.json` 生成；该 JSON 是 `result/round10/conclusion.md` 最终总结 §2.1、提交 `ca57456` 的脱敏展示值摘录，保留原百分数字符串。其余四图是中文教学示意，不是测量。
+`assets/images/plots/ch00_metrics.png` 由 `scripts/figures/ch00_metrics.py` 根据 `data/ch00_metrics.json` 生成；该 JSON 是 `result/round10/conclusion.md` 最终总结 §2.1、提交 `ca57456` 的脱敏展示值摘录，保留原百分数字符串。其余四图是中文教学示意，不是测量。

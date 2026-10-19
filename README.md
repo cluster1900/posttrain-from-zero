@@ -19,7 +19,7 @@ python3 scripts/check_book.py                      # 审核门禁：命名、保
 # 先按下方“CPU 教学例子”安装依赖
 python3 -m pytest -q tests                        # CPU 示例测试
 python3 build.py                                   # 生成网页、EPUB、PDF（找不到 Chrome 时用 CHROME_PATH 指定）
-python3 scripts/check_built_book.py                 # 五张 SVG 与六段独立教学代码
+python3 scripts/check_built_book.py                 # 正文图片与六段独立教学代码
 python3 scripts/check_outputs.py dist              # 检查三种产物：下载链接、EPUB 图片、PDF 字体嵌入与页码
 python3 build.py --src tests/build_fixture --out build/fixture   # 构建自检样章（中文、mermaid、公式、代码、表格）
 epubcheck dist/posttrain-from-zero.epub            # 可选：本地校验 EPUB（CI 必跑）
@@ -55,6 +55,7 @@ python -m pip install -r requirements-examples.txt
 python examples/ch01_pytorch.py all
 python -m pytest -q tests
 python scripts/draw_ch01.py
+python scripts/figures/ch00_metrics.py
 python scripts/check_book.py
 python3 build.py
 python scripts/check_built_book.py

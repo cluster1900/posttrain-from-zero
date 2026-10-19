@@ -60,6 +60,7 @@ jobs:
           python3 -m pip install -q -r requirements-examples.txt
           mkdir -p build/figcheck
           for f in scripts/figures/*.py; do echo "+ $f"; python3 "$f" --out build/figcheck; done
+          for f in build/figcheck/*; do cmp "$f" "assets/images/plots/$(basename "$f")"; done
       - name: Build self-test fixture (Chinese, mermaid, math, code, tables)
         run: |
           set -euo pipefail

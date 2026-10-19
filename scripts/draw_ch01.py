@@ -1,20 +1,13 @@
 #!/usr/bin/env python3
-"""Generate five original, deterministic Chinese SVG figures, using only stdlib.
-
-Measured data is a minimal sanitized snapshot of conclusion §2.1 at ca57456.
-No access to the private source repository is needed to regenerate these files.
-"""
+"""Generate four original Chinese SVG schematics using only stdlib."""
 from html import escape
-import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'images'
 FONT = 'Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif'
 INK = '#18243b'
-BLUE = '#386bb3'
 TEAL = '#087f83'
-ORANGE = '#bd6920'
 
 class SVG:
     def __init__(self, title, height=360):
@@ -75,47 +68,6 @@ def lora():
     s.save('ch01_lora.svg')
 
 
-def metrics():
-    data = json.loads((ROOT / 'scripts/data/batch1_metrics.json').read_text(encoding='utf-8'))
-    s = SVG('项目实测：Base、SFT 与 RL 的评测结果', 680)
-    s.text(40, 83, 'Qwen3.5-2B · Terminal-Bench 2.0 · 每阶段 89 个任务 × 5 次尝试 = 445 次试验', 21)
-    s.rect(35, 122, 690, 427)
-    s.rect(745, 122, 420, 427)
-    s.text(60, 155, '任务通过率（%）', 23, weight='bold')
-    for i, (label, color) in enumerate([('pass@1', BLUE), ('pass@3', TEAL), ('pass@5', ORANGE)]):
-        x = 290 + i*128
-        s.rect(x, 146, 16, 16, color, color, 2)
-        s.text(x+24, 155, label, 18)
-    s.text(770, 155, '有效工具调用率（%）', 23, weight='bold')
-    for tick in range(6):
-        x = 150+tick*94
-        s.line(f'M{x} 195 V510', color='#e0e5ee')
-        s.text(x, 526, str(tick), 16, 'middle')
-    for i, stage in enumerate(data['stages']):
-        y = 232 + i*112
-        s.text(65, y+21, stage['name'], 21, weight='bold')
-        for j, (key, color) in enumerate([('pass_at_1', BLUE), ('pass_at_3', TEAL), ('pass_at_5', ORANGE)]):
-            val = stage[key]
-            yy = y-17+j*27
-            width = float(val)*94
-            if width:
-                s.rect(150, yy, width, 18, color, color, 2)
-            else:
-                s.line(f'M150 {yy} V{yy+18}', color=color)
-            s.text(160+width, yy+9, val+'%', 17, color=color)
-        s.text(770, y+1, stage['name'], 21, weight='bold')
-        value = stage['valid_tool_call_rate']
-        s.rect(835, y-9, 225, 22, '#e8edf4', '#e8edf4', 3)
-        s.rect(835, y-9, float(value)*2.25, 22, TEAL, TEAL, 3)
-        s.text(1070, y+2, value+'%', 17, color=TEAL)
-    s.text(835, 526, '0', 16, 'middle')
-    s.text(1060, 526, '100', 16, 'middle')
-    s.text(40, 580, '本次 SFT 的三项通过率均高于 RL；工具调用格式有效不等于任务完成。两图使用不同横轴范围。', 20)
-    s.text(40, 620, f"来源：{data['source']} · 最终结项总结 §2.1", 18)
-    s.text(40, 650, f"来源提交：{data['source_commit']}；百分数保留来源显示精度。仅展示本项目结果，不代表通用算法排名。", 18)
-    s.save('ch00_metrics.svg')
-
-
 def label_shift():
     s = SVG('标签移位与损失掩码：位置 t 预测位置 t + 1', 590)
     s.text(40, 83, '位置从 0 开始；原始 logits 序列长度为 4；标签为 [-100, -100, 2, 3]。', 21)
@@ -160,9 +112,8 @@ def main():
           ('更新与清零', ['优化器更新一次', '然后清空梯度'])],
          '原理示意，非项目测量。微步之间不更新参数、不清空梯度；归一化分母覆盖本次更新。')
     lora()
-    metrics()
     label_shift()
-    print('Generated 5 SVG figures (4 schematics + 1 measured comparison)')
+    print('Generated 4 SVG schematics')
 
 if __name__ == '__main__':
     main()

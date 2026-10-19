@@ -5,6 +5,7 @@ import re
 import subprocess
 import sys
 import zipfile
+from html.parser import HTMLParser
 from xml.etree import ElementTree as ET
 
 TEACHING_FENCE = re.compile(r'^```python\n(.*?)^```\s*$', re.M | re.S)
@@ -14,23 +15,45 @@ def teaching_blocks(text):
     """Attribute fences such as {.python .source-excerpt} are intentionally excluded."""
     return TEACHING_FENCE.findall(text)
 
+class ImageCounter(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.count = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in {'img', 'svg'}:
+            self.count += 1
+
+
+def expected_images(texts):
+    refs = [ref for text in texts for ref in IMAGE_REFERENCE.findall(text)]
+    mermaid = sum(len(re.findall(r'^```\{\.mermaid\b', text, re.M)) for text in texts)
+    return refs, mermaid
+
+
 def main():
     root = Path(__file__).resolve().parents[1]
     texts = [p.read_text() for p in sorted((root/'chapters').glob('*.md'))]
-    refs = [ref for text in texts for ref in IMAGE_REFERENCE.findall(text)]
+    refs, mermaid = expected_images(texts)
     assert refs, 'Book must reference its illustrations'
     for ref in refs:
         assert (root/'assets'/ref).is_file(), f'Missing referenced image: {ref}'
     html = (root/'dist/index.html').read_text()
     assert 'Hawk Wu' in html and '第 1 章' in html
-    assert html.count('<svg') + html.count('data:image/svg+xml') == len(refs), 'HTML image reference/embed count mismatch'
+    counter = ImageCounter()
+    counter.feed(html)
+    assert counter.count == len(refs) + mermaid, 'HTML image reference/embed count mismatch'
     with zipfile.ZipFile(root/'dist/posttrain-from-zero.epub') as z:
         assert z.read('mimetype') == b'application/epub+zip'
         for n in z.namelist():
             if n.endswith(('.xhtml', '.opf', '.svg')):
                 ET.fromstring(z.read(n))
         unique_refs = {Path(ref).name for ref in refs}
-        assert len([n for n in z.namelist() if n.endswith('.svg')]) == len(unique_refs)
+        images = [n for n in z.namelist() if Path(n).suffix.lower() in {'.svg', '.png', '.jpg', '.jpeg'}]
+        assert len(images) == len(unique_refs) + mermaid, 'EPUB image count mismatch'
+        for ref in refs:
+            data = (root/'assets'/ref).read_bytes()
+            assert any(z.read(n) == data for n in images), f'EPUB missing exact image: {ref}'
         package = z.read('EPUB/content.opf').decode()
         assert 'Hawk Wu' in package and 'zh-CN' in package
     count = 0
@@ -40,7 +63,7 @@ def main():
         for block in teaching_blocks(text):
             subprocess.run([sys.executable, '-c', block], check=True, cwd=root)
             count += 1
-    print(f'PASS HTML/EPUB structure, {len(refs)} embedded SVG figures, {count} teaching Python code blocks; source excerpts not executed')
+    print(f'PASS HTML/EPUB structure, {len(refs) + mermaid} embedded figures, {count} teaching Python code blocks; source excerpts not executed')
 
 if __name__ == '__main__':
     main()

@@ -43,3 +43,14 @@ assert 2 + 2 == 4
     chapter = (ROOT/'chapters/01_pytorch.md').read_text()
     assert chapter.count('.source-excerpt}') == 6
     assert len(checker.teaching_blocks(chapter)) == 6
+
+
+def test_mixed_figure_counts_include_mermaid():
+    from scripts.check_built_book import ImageCounter, expected_images
+    text = '![' + '图 0-1 示意' + '](images/a.svg)\n![图 0-2 实测](images/plots/b.png)\n```{.mermaid #roadmap}\nflowchart TB\n```\n'
+    refs, mermaid = expected_images([text])
+    assert refs == ['images/a.svg', 'images/plots/b.png']
+    assert mermaid == 1
+    parser = ImageCounter()
+    parser.feed('<figure><svg><title>图</title></svg></figure><img src="data:image/png;base64,x"><img src="roadmap.png">')
+    assert parser.count == len(refs) + mermaid == 3

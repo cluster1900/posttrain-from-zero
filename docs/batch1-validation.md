@@ -37,3 +37,10 @@
 - 整合后 `check_book.py` 通过，17 项测试通过（6.90s）；新增 matplotlib 3.11.2 后 `pip check` 通过；锁定 Node 依赖 `npm ci` 成功。
 - 本地完整 `python3 build.py` 已实际尝试，但系统 Chromium 在 Mermaid 阶段因沙箱不允许 `socket()` 启动失败。因此上面 HTML/EPUB 成功证据仅适用于整合前版本，不能视为本次三格式构建通过。未修改权限或绕过限制；本次 HTML/EPUB/PDF、EPUBCheck 与 PDF 字体/页码检查以同一 PR 最新 head 的远程 CI 为准。
 - 兼容 Pandoc 内联 SVG：网页和打印样式将 `figure svg` 与图片一起约束为容器宽度，并保持纵横比；待远程 PDF 实际图页复核。
+
+## 第二轮机械返修（review 5572727029）
+
+- 实测图改为 `scripts/figures/ch00_metrics.py` 从 `data/ch00_metrics.json` 生成 `assets/images/plots/ch00_metrics.png`，按 A7 声明 `DATA_SOURCE` 并支持 `--out`；数据值不变，来源另见 `data/README.md`。
+- `scripts/draw_ch01.py` 只生成四张示意 SVG；正文另含一张实测 PNG 和上游 Mermaid 路线图。五张新增图与路线图的图注统一为图 0-1–0-3、图 1-1–1-3。
+- `check_built_book.py` 动态计入 SVG、PNG 和 Mermaid 图片，并核对 EPUB 中的原图字节；新增混合资源计数回归。CI 对实测 PNG 的 `--out` 结果与入库图片逐字节比较。
+- 此轮本地完整 Chromium 构建仍受上述 socket 限制；不将上一 head `0639834` 的 CI 成功视为本轮通过。最新精确 head 的测试、三格式产物和图页复核结果在 PR 中记录。
