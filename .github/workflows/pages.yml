@@ -27,8 +27,21 @@ jobs:
           curl -fsSL -o /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/3.5/pandoc-3.5-1-amd64.deb
           sudo dpkg -i /tmp/pandoc.deb
           pandoc --version | head -1
+      - name: Review gate (branding, secrets, chapter structure)
+        run: python3 scripts/check_book.py
+      - name: CPU examples and tests
+        if: hashFiles('examples/**/*.py') != ''
+        run: |
+          set -euo pipefail
+          python3 -m pip install -q -r requirements-examples.txt
+          python3 -m pytest -q tests
       - name: Build HTML + EPUB
         run: python3 build.py
+      - name: Validate EPUB
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y -q epubcheck >/dev/null
+          epubcheck dist/posttrain-from-zero.epub
       - name: Upload EPUB (for review)
         uses: actions/upload-artifact@v4
         with:

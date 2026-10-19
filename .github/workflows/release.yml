@@ -28,6 +28,7 @@ jobs:
           sudo dpkg -i /tmp/pandoc.deb
       - name: Build
         run: |
+          python3 scripts/check_book.py
           python3 build.py
           (cd dist && zip -qr ../posttrain-from-zero-web.zip . -x posttrain-from-zero.epub)
           cp dist/posttrain-from-zero.epub .
