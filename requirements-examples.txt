@@ -4,4 +4,5 @@ torch==2.10.0
 numpy==2.3.4
 transformers==5.6.0   # 第 6 章：微型 Qwen3.5 模块树
 peft==0.18.1          # 第 6 章：LoRA 目标与可训练参数
+matplotlib==3.11.2   # scripts/figures/：真实指标曲线（CPU）
 pytest==8.4.2
