@@ -4,7 +4,7 @@
 检查项（对应 docs/outline.md「验收标准」）：
   A1 品牌：书稿中不出现旧方法名；外部数据集 / harness 的 ID 只允许出现在致谢与许可附录。
   A2 保密：书稿与大纲中不出现云项目编号、bucket、服务账户、镜像仓库地址、邮箱、Drive 文件夹 ID、私钥或 API key。
-  A3 结构：每个训练阶段章节必须包含规定的小节；每章（前言除外）必须有「本章出处」。
+  A3 结构：训练阶段章节与专题章节（第 6、13 章）必须包含规定的小节和表头；每章（前言除外）必须有「本章出处」。
   A4 出处：「本章出处」里至少列出一条源仓库路径或提交号。
   A5 示例：examples/ 下每个 .py 示例都要有对应测试（tests/test_<示例名>.py）。
 命中时只打印文件名、行号和规则名，不打印命中的内容。
@@ -28,8 +28,13 @@ SECRET_RULES = {
     "private-key": re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
     "api-key": re.compile(r"\b(sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{35}|ghp_[A-Za-z0-9]{36}|hf_[A-Za-z0-9]{30,})\b"),
 }
-STAGE_CHAPTERS = {"03", "04", "06", "07", "08", "09", "10", "11"}
+STAGE_CHAPTERS = {"03", "04", "07", "08", "09", "10", "11", "12"}
 STAGE_SECTIONS = ["动机", "配置", "命令", "时间线与耗时", "坑与修复", "花费", "教训", "本章出处"]
+TOPIC_SECTIONS = {
+    "06": ["动机", "模型结构", "检查方法与代码", "LoRA 目标模块与超参数", "冻结与训练的参数", "坑与修复", "待作者确认", "本章出处"],
+    "13": ["动机", "信号总表", "评测信号", "训练信号", "门禁与判定", "实测值", "待作者确认", "本章出处"],
+}
+SIGNAL_HEADER = re.compile(r"\|\s*信号\s*\|\s*公式\s*\|\s*样本量\s*\|\s*数据来源\s*\|\s*原阈值\s*\|\s*修订阈值\s*\|\s*为什么这样算\s*\|\s*证据\s*\|")
 PITFALL_HEADER = re.compile(r"\|\s*现象\s*\|\s*根因\s*\|\s*修复\s*\|\s*证据\s*\|")
 SOURCE_REF = re.compile(r"`[^`]*(/|\.md|\.json|\.jsonl|\.py|\.yaml|\.log)[^`]*`|提交 `[0-9a-f]{7,40}`")
 
@@ -70,6 +75,14 @@ def main():
                 tail = text.split("本章出处", 1)[1]
                 if not SOURCE_REF.search(tail):
                     errors.append(f"{rel}: A4 「本章出处」里没有源仓库路径或提交号")
+        if num in TOPIC_SECTIONS:
+            for sec in TOPIC_SECTIONS[num]:
+                if not any(h == sec or h.endswith(sec) for h in hs):
+                    errors.append(f"{rel}: A3 专题章节缺少小节「{sec}」")
+            if not PITFALL_HEADER.search(text) and num == "06":
+                errors.append(f"{rel}: A3 「坑与修复」需要表头 | 现象 | 根因 | 修复 | 证据 |")
+            if num == "13" and not SIGNAL_HEADER.search(text):
+                errors.append(f"{rel}: A3 「信号总表」需要表头 | 信号 | 公式 | 样本量 | 数据来源 | 原阈值 | 修订阈值 | 为什么这样算 | 证据 |")
         if num in STAGE_CHAPTERS:
             for sec in STAGE_SECTIONS:
                 if not any(h == sec or h.endswith(sec) for h in hs):

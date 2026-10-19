@@ -1,4 +1,4 @@
-# 《后训练从 0 到 1》详细大纲（v2，待写作）
+# 《后训练从 0 到 1》详细大纲（v3，待写作）
 
 作者：Hawk Wu
 
@@ -8,7 +8,7 @@
 
 1. **每个事实都要能追溯**到源仓库的文件、日志、指标或提交（写明路径或 commit）。数字（loss、显存、耗时、pass@k）照抄原始记录，不四舍五入成别的意思。
 2. **记录里没有的不编**。原因、心路、费用等如果找不到，就在章末"待作者确认"里列问题，不要替作者补动机。
-3. **如实写结果**，包括不好看的数字：RL 后 pass@1（0.90%）比 SFT（1.12%）低，必须写。门禁按 Apexo 阈值描述（见第 10 章），所有实测数字照抄原始报告，一个都不改。不要写成"阈值在训练前就定好了"，记录里也没有这个说法。
+3. **如实写结果**，包括不好看的数字：RL 后 pass@1（0.90%）比 SFT（1.12%）低，必须写。门禁按 Apexo 阈值描述（见第 13 章），所有实测数字照抄原始报告，一个都不改。不要写成"阈值在训练前就定好了"，记录里也没有这个说法。
 4. **方法命名**：全书统一叫"Apexo 后训练流程""Apexo RL"等。不要把方法归属给某篇外部论文或某个外部项目。公开数据集和评测 harness 是固定版本的外部输入，在附录 E 按许可证署名。
 5. 公开书稿里**不出现**云项目编号、bucket 名、Drive 文件夹 ID、服务器主机名、邮箱、密钥或任何凭据；用"项目 bucket""训练服务器"等代称。
 6. 风格：中文、面向能写 Python 但没做过后训练的读者；概念先用直觉解释，再给最小代码；源仓库代码只摘关键片段并注明出处。
@@ -19,7 +19,7 @@
 
 这本书要**写得很细**。读者只看书、不看源仓库，也要能明白每一步做了什么、为什么、花了多久、出了什么问题。
 
-**训练阶段章节**（第 3、4、6、7、8、9、10、11 章）每章都必须有下面这些二级小节，标题照抄，顺序不限：
+**训练阶段章节**（第 3、4、7、8、9、10、11、12 章）每章都必须有下面这些二级小节，标题照抄，顺序不限：
 
 | 小节 | 要写什么 |
 | --- | --- |
@@ -32,7 +32,9 @@
 | `## 教训` | 这一步之后怎么调整的、对读者有什么可复用的经验；必须对应到上面写过的事实 |
 | `## 本章出处` | 本章用到的全部源文件路径和提交号清单 |
 
-其他章节（第 1、2、5、12、13 章和附录）至少要有 `## 本章出处`。前言除外。
+**专题章节**（第 6、13 章）必须有各自规定的小节，见下面两章的「本章必备小节」。
+
+其他章节（第 1、2、5、14、15 章和附录）至少要有 `## 本章出处`。前言除外。
 
 **代码示例**：
 - 放在 `examples/chNN_<主题>.py`，必须在 CPU 上几秒内跑完，不需要 GPU、网络或凭据。
@@ -46,12 +48,14 @@
 | --- | --- | --- |
 | 1 | **每个数字都能追溯**：每个数字、时间、配置值都能在源仓库的文件或提交里找到原文；正文或「本章出处」写明路径或提交号 | 审核时每章至少抽查 10 个数字（不足 10 个则全查），只要有一个找不到原文就退回 |
 | 2 | **不编造**：动机、费用、心路只写记录里有的或作者已确认的；门禁按 Apexo 阈值写，但不写成训练前预设；实测数字照抄 | 人工审核 |
-| 3 | **训练阶段章节结构完整**：上面 8 个小节齐全，「坑与修复」用规定表头，每个坑都有证据 | `python3 scripts/check_book.py`（A3、A4）+ 人工核对 R1–R49 覆盖 |
+| 3 | **章节结构完整**：训练阶段章节 8 个小节齐全；第 6、13 章的必备小节齐全，第 13 章「信号总表」用规定表头；「坑与修复」用规定表头，每个坑都有证据 | `python3 scripts/check_book.py`（A3、A4）+ 人工核对 R1–R49 覆盖 |
 | 4 | **代码示例能在 CPU 上跑且有测试** | CI 运行 `pytest`；`check_book.py` A5 检查每个示例都有测试 |
 | 5 | **构建、Pages、EPUB 都通过** | 本地 `python3 build.py` 成功；PR 的 CI `build` job 绿（含 `check_book.py`、示例测试、`epubcheck` 校验 EPUB）；合并后 Pages 部署成功 |
 | 6 | **没有旧方法名**：全书只用"Apexo"命名；外部数据集和 harness 的 ID 只出现在致谢与许可附录（文件名含 `credits`、`appendix_e` 或 `99_`） | `check_book.py` A1 |
 | 7 | **没有秘密和项目标识**：没有云项目编号、bucket、服务账户、镜像仓库地址、邮箱、Drive 文件夹 ID、主机名、私钥或 API key | `check_book.py` A2 + 人工审核 |
 | 8 | **写得够细**：读者不看源仓库也能复述这一步的做法、原因、耗时和每个坑 | 人工审核；明显只列要点、不讲过程的章节退回 |
+| 9 | **成败判定讲透**（第 13 章）：训练和评测里用到的每个信号都进「信号总表」，写清公式（与源码函数逐字对应）、样本量（89 任务 × 5 次等）、数据来源、原阈值和修订阈值、为什么这样算、证据路径；两套阈值下的结论都写 | `check_book.py` A3 检查表头和小节；人工逐行对照 `evaluation/run_eval.py`、`train/losses.py`、`train/rl_trainer.py` |
+| 10 | **模型结构检查讲透**（第 6 章）：有 CPU 可运行的代码打印模块树、统计参数、选出 LoRA 目标并断言 lm_head 冻结；LoRA 配置照抄 YAML；没有记录的原因进「待作者确认」 | CI 跑 `tests/test_ch06_model_structure.py`；人工对照 `configs/sft/qwen35_2b_lora.yaml`、`train/model_utils.py` |
 
 PR 描述里要列出：本批每个数字/结论的出处、`check_book.py` 和 `build.py` 的输出、示例测试结果。
 
@@ -83,7 +87,7 @@ PR 描述里要列出：本批每个数字/结论的出处、`check_book.py` 和
 - 本项目路线（Apexo 后训练流程）：公开数据冻结 → LoRA SFT 预热 → outcome-only DPPO（Apexo RL）→ Harbor + Terminal-Bench 2.0 评测；作者的设计取舍（单卡、LoRA、lr 等，相对常见多机方案）。
 - 素材：`AGENTS.md`、`docs/apexo/01_architecture.md`、`docs/apexo/09_custom_training_design.md`（§1.3 设计取舍表）、`configs/rl/qwen35_2b.yaml` 注释、`docs/apexo/README.md` 流程图。
 - 方法来源（作者 2026-10-19 确认）：Apexo 是作者在阅读多方公开论文与开源实现后自行设计和修改的流程。
-- 模型规模（作者 2026-10-19 确认）：选 Qwen3.5 2B 是因为它**足够小**。4B 也试过：完成了 SFT，之后因成本太高停止（见第 12 章）。作者没有说明为什么选 Base 而不选 Instruct，书里只写"用的是官方 Base 模型"，不要替作者补理由。
+- 模型规模（作者 2026-10-19 确认）：选 Qwen3.5 2B 是因为它**足够小**。4B 也试过：完成了 SFT，之后因成本太高停止（见第 14 章）。作者没有说明为什么选 Base 而不选 Instruct，书里只写"用的是官方 Base 模型"，不要替作者补理由。
 
 ### 第 3 章 第一版为什么不能用：从 v1 到 v2（10-10）
 
@@ -101,10 +105,54 @@ PR 描述里要列出：本批每个数字/结论的出处、`check_book.py` 和
 ### 第 5 章 聊天模板与工具调用格式
 
 - 为什么模板必须唯一、增量拼接要和整段渲染一致；Qwen3.5 原生 XML 工具调用；`<think>` 段。
-- 坑：rollout 中训练了外来的 `<|endoftext|>` / eos 终止符（提交 `33f3cc5`）；官方 Base 只配了 `<|endoftext|>` 作 eos，vLLM 不停在 `<|im_end|>`，导致输出失控（R48，第 10 章展开）。
+- 坑：rollout 中训练了外来的 `<|endoftext|>` / eos 终止符（提交 `33f3cc5`）；官方 Base 只配了 `<|endoftext|>` 作 eos，vLLM 不停在 `<|im_end|>`，导致输出失控（R48，第 11 章展开）。
 - 素材：`configs/chat_templates/qwen35_agent.jinja`、`train/chat_format.py`、`tests/test_chat_format.py`、R48。
 
-### 第 6 章 SFT：在 Colab 上把格式教会（10-11 ~ 10-13，round2）
+### 第 6 章 训练前先看清模型：Qwen3.5-2B 的结构与 LoRA 选型（专题）
+
+要写细：读者读完要能自己打印出模型结构、数清参数、选出 LoRA 目标模块，并且知道为什么这样选。
+
+- **模型结构**：
+  - 官方 `Qwen/Qwen3.5-2B-Base` 的类名是 `Qwen3_5ForConditionalGeneration`。
+  - 混合注意力：Gated DeltaNet 线性注意力层与全注意力层按 3 : 1 排列。
+  - 词表 248,320，tie embedding。
+  - 素材：`docs/apexo/09_custom_training_design.md` §1 表、`docs/apexo/00_progress.md` §1.1。
+  - 各类模块逐个讲清楚：
+    - 全注意力 `q_proj/k_proj/v_proj/o_proj`；
+    - Gated DeltaNet 的 `in_proj_qkv/in_proj_z/in_proj_a/in_proj_b/out_proj`，其中 a/b 是衰减门控；
+    - MLP `gate_proj/up_proj/down_proj`；
+    - embedding、各层 RMSNorm、`lm_head`（与 embedding 共享权重）。
+  - 层数、隐藏维度、参数总量这些具体数字，源仓库**没有记录**。只能由示例代码从官方 `config.json` 现场算出，并注明"读者运行所得，非项目记录"；或者等作者确认。
+- **检查方法与 CPU 代码**（`examples/ch06_model_structure.py` + `tests/test_ch06_model_structure.py`）：
+  1. 用源仓库 `tests/conftest.py` 里的微型 Qwen3.5 配置构建模型：2 层，`layer_types=["linear_attention","full_attention"]`，`tie_word_embeddings=True`。在 CPU 上随机初始化，不联网，不下载权重。
+  2. 打印模块树（`named_modules()`），按类型汇总。
+  3. 统计每类参数量，以及总参数量和 embedding 参数量。
+  4. 按 `train/model_utils.py` 的 `DEFAULT_LORA_TARGETS` 选出 LoRA 目标，套上 `peft.LoraConfig(r=64, lora_alpha=64, lora_dropout=0.0, bias="none")`，打印可训练参数量和占比。
+  5. 断言三件事：`lm_head` / embedding 处于冻结状态；GDN 的 `in_proj_a`、`in_proj_b` 被覆盖；可训练参数量等于按公式 Σ r·(d_in + d_out) 手算的结果。
+  6. 附一个可选脚本，联网读取官方 2B 的 `config.json`，把同样的统计用在真实规模上。这个脚本不进 CI，正文里引用它的输出时要注明"读者运行所得，非项目记录"。
+- **LoRA 目标模块与超参数**：
+  - 精确配置照抄 `configs/sft/qwen35_2b_lora.yaml` 与 `configs/rl/qwen35_2b.yaml`：`lora.r=64`、`alpha=64`、`dropout=0.0`、`target_modules` 共 12 个。
+  - 4B 照抄 `configs/sft/qwen35_4b_lora.yaml`。
+  - 代码：`train/model_utils.py` 的 `apply_lora`（`bias="none"`、`task_type="CAUSAL_LM"`）。
+- **哪些冻结、哪些训练，为什么**：
+  - 只训练 LoRA 增量，基座权重、embedding、norm、`lm_head` 全部冻结。
+  - `lm_head` 冻结有代码层面的原因：`_assert_head_frozen` 里写着，fp32 的 head 副本只缓存一次（`train/model_utils.py`；R5、R18）。
+  - 为什么用 LoRA 而不做全参：`09_custom_training_design.md` §1.3 设计取舍表（单卡 40GB）。
+  - 为什么 GDN 门控 a/b 也要加 LoRA：§6.2 第二轮审核"LoRA 补上 GDN 门控 `in_proj_a`、`in_proj_b`"。
+  - 测试证据：`tests/test_model_utils.py`，说明见 `docs/apexo/05_testing_plan.md`：LoRA 覆盖 GDN 投影且 lm_head 冻结。
+- **本章必备小节**（`check_book.py` 检查）：`## 动机`、`## 模型结构`、`## 检查方法与代码`、`## LoRA 目标模块与超参数`、`## 冻结与训练的参数`、`## 坑与修复`（表头同训练阶段章节）、`## 待作者确认`、`## 本章出处`。
+- **本章验收**：
+  1. 示例在 CPU 上跑通，测试断言了上面 5 条；
+  2. 每个配置值都能在源仓库找到原文；
+  3. 记录里没有的原因写进「待作者确认」，不替作者补；
+  4. 不写源仓库没有记录的层数或参数量，除非标明是读者运行所得。
+- **待作者确认**（记录里没有）：
+  1. 训练前是用什么方式检查模型结构的（打印模块树、读 config，还是别的）；
+  2. 为什么 r=64、alpha=64、dropout=0；
+  3. 为什么不训练 embedding 和 norm；
+  4. 2B 的总参数量和 LoRA 可训练参数量当时有没有记录。
+
+### 第 7 章 SFT：在 Colab 上把格式教会（10-11 ~ 10-13，round2）
 
 1. 小步验证：5 步 smoke（2B/4B loss 下降数字），再做正式长度短 SFT 和续训测试。
 2. 正式 SFT：2 个 epoch；2B 702 步约 7 小时 45 分，4B 688 步约 11 小时 45 分；loss 曲线与显存（2B 13.91 GiB、4B 21.64 GiB，torch allocated）。
@@ -116,7 +164,7 @@ PR 描述里要列出：本批每个数字/结论的出处、`check_book.py` 和
 - 素材：`result/round2/README.md`、`result/round2/logs/formal-sft.log`、`result/round2/results/formal_sft/metrics_*.jsonl`、`result/round2/results/memory_audit_20261013.md`、§6.6–§6.8、§6.21–§6.27、`train/sft_trainer.py`、`train/dataset.py`。
 - 建议配图：两条 SFT loss 曲线（由 metrics_*.jsonl 画，脚本放本书 `scripts/`）。
 
-### 第 7 章 算力去哪里找：Colab、GCP 与 Agent Platform（10-11 ~ 10-14）
+### 第 8 章 算力去哪里找：Colab、GCP 与 Agent Platform（10-11 ~ 10-14）
 
 - 方案几次变化及原因：去掉 Daytona、拆 Colab/GCP（PR #4）→ 直接 GCP VM（round3，计划了但没执行）→ Agent Platform CustomJob + 临时 CPU 沙箱 VM（round4–round8）。
 - 40GB 还是 80GB：§6.22、§6.32–§6.33 的决策过程；最后定为单卡 A100 40GB、训练与推理串行、KV cache 可调。
@@ -127,49 +175,102 @@ PR 描述里要列出：本批每个数字/结论的出处、`check_book.py` 和
 - 花费（作者 2026-10-19 确认）：全项目总花费约 **200 美元，全部是 Google Cloud**。仓库没有账单明细，书里只写这个总数，不要拆分到各轮。
 - 为什么去掉 Daytona（作者 2026-10-19 确认）：Google Cloud 上已经有能承载沙箱的 VM，不需要再用 Daytona。
 
-### 第 8 章 RL 原理与实现：DPPO 怎么在一张卡上跑
+### 第 9 章 RL 原理与实现：DPPO 怎么在一张卡上跑
 
 - 一步 RL 的完整流程：抽 4 个任务 × 每个 8 个样本 → vLLM 多轮 rollout（训练器离卡）→ 沙箱里执行 → verifier 0/1 奖励 → centered advantage → DPPO（binary TV 0.1）更新 LoRA → 权重推回 vLLM。
 - 关键设计：零方差组过滤与有界 active sampling、截断样本 mask、`sync/logprob_abs_diff` 同步检查、k3 KL 只监控不惩罚（beta=0）、fp32 lm_head、分块 logprob 防 248K 词表 OOM、vLLM sleep/wake。
 - 素材：`train/rl_trainer.py`、`train/rollout.py`、`train/losses.py`、`train/agent_env.py`、`configs/rl/qwen35_2b.yaml`、`docs/apexo/09_custom_training_design.md`、`docs/apexo/08_execution_contract.md`、`tests/test_rl_step.py`、`tests/test_losses.py`、提交 `1037af0`、`a5a8046`。
 
-### 第 9 章 沙箱：让模型的命令只在该在的地方跑
+### 第 10 章 沙箱：让模型的命令只在该在的地方跑
 
 - 为什么模型命令绝不能在宿主机裸跑；GPU worker 不跑 Docker；临时 CPU VM 跑原任务容器，经 IAP SSH 调用；VM 无服务账户、容器拿不到凭据（R44）。
 - round5 原生 Shell Sandbox 实测（能力和限制），round9 原任务 verifier 探针（只证明链路通，不证明正确解法得 1 分）。
 - 素材：`train/sandbox.py`、`train/remote_sandbox.py`、`scripts/agent_platform/cpu_startup.sh`、`result/round5/`、`result/round9/`、R40、R44。
 
-### 第 10 章 评测：Harbor 与 Terminal-Bench 2.0 的长跑（10-14 ~ 10-17）
+### 第 11 章 评测：Harbor 与 Terminal-Bench 2.0 的长跑（10-14 ~ 10-17）
 
 - 指标：89 个任务 × 5 次 = 445 trials；pass@1/3/5、valid_tool_call_rate。
-- Apexo 门禁（`evaluation/run_eval.py` 默认值）：
-  - SFT：有效工具调用率 ≥ 96%；pass@1 相对 Base 增益 ≥ +0.01，且 bootstrap 95% CI 下界 > 0。
-  - RL：有效工具调用率 ≥ 96%；pass@1 相对 SFT 不劣于 −0.01（不要求提升）。
-  - 训练健康检查：KL 最大值 ≤ 0.2、熵 ≤ 起始的 3 倍、无工具调用轮次 ≤ 10%。
-  - 阈值修订于 10-19（素材：`result/round10/regate/README.md`）；照实写这个日期，不要写成训练前预设。
+- 指标怎么算、门禁怎么判，统一放到第 13 章；本章只讲评测怎么跑起来，以及跑的过程中出了什么问题。
 - Base 评测前三次失败：24576 上下文装不下 16384 输出 → 65536 被 4 小时超时掐断 → 18 小时那次 SSH 断线退出 255。
 - 根因与修复：R48（eos 停止符 + `repetition_penalty=1.05` + `max_tokens=8192` + `command_timeout=300`）、R49（Harbor 后台脱机运行、隧道重连、磁盘清理、trial 级快照与跨作业恢复）。
 - Spot 抢占：SFT 评测 289 → 377 → 445 三次才跑完。
 - 耗时：Base v6 约 13 小时 43 分；SFT 评测三次的时长。
 - 素材：`result/round10/README.md`、`result/round10/conclusion.md`（上半部分）、`result/round10/harbor-base/`、`result/round10/harbor-sft-2b/`、`scripts/agent_platform/harbor_eval.py`、`evaluation/run_eval.py`、R48、R49、§6.49–§6.50。
 
-### 第 11 章 RL 实跑：八步，以及前两步为什么全是 0 分（10-17 ~ 10-18）
+### 第 12 章 RL 实跑：八步，以及前两步为什么全是 0 分（10-17 ~ 10-18）
 
 - Step 1 后被 4 小时超时取消 → 改 18 小时，从已提交 checkpoint 续训；Step 1–2 奖励全 0、梯度跳过；继续到 Step 8，5 步有非零奖励更新。
 - 逐步指标表（reward_mean、useful_groups、loss、KL、entropy、显存、步时），步时 3,500–8,700 秒。
 - 素材：`result/round10/rl-2b/`（`continue-final/metrics.jsonl`、`rollouts.jsonl`、各 run log）、`result/round10/sub2-orchestrator-status.json`、`result/round10/scripts/sub2_orchestrate.py`。
 
-### 第 12 章 结果与诚实复盘
+### 第 13 章 怎么判断成功还是失败：指标、算法与门禁（专题）
+
+要写细：每个信号都要讲清楚四件事——看什么、怎么算（公式和样本量）、为什么这样算、证据在哪个文件。全部对应到源仓库的门禁脚本和配置。
+
+- **评测信号**（`evaluation/run_eval.py`）：
+  - 样本：Terminal-Bench 2.0 的 89 个任务 × 每任务 5 次 = 445 trials。一个 trial 的 reward 取 `verifier_result.rewards.reward`，reward ≥ 1 记为通过。没有 reward 记 0 分，同时记一次 error。
+  - **pass@1**：先算每个任务的通过率 c/n（n=5），再对 89 个任务取平均（按任务等权的宏平均）。
+  - **pass@k**：无偏估计 `1 − C(n−c, k) / C(n, k)`（Chen et al. 2021），对任务取平均；k ∈ {1, 3, 5}。
+  - **valid_tool_call_rate**：`1 − 格式错误步数 / 总步数`，在全部 trial 上合并计算（按步汇总）。格式错误指 Harbor `timing.json` 里 `format_error: true` 的步，也就是这一步没有合法的 bash 调用。
+  - **置信区间**：配对 bootstrap，函数 `paired_bootstrap`。
+    1. 取两个报告共有的任务，逐任务求差 d_t = 当前通过率 − 对照通过率；
+    2. 有放回重采样 89 个差值，求均值，重复 2,000 次，随机种子 0；
+    3. 排序后取第 2.5 和第 97.5 百分位作为 95% 区间（代码里取排序后下标 50 和 1950 的值，下标从 0 开始）。
+    - 为什么配对：同一任务的难度在两次评测之间是共享的，配对能消掉任务难度带来的方差。为什么选 2,000 次、为什么用种子 0，记录里没有写，放进「待作者确认」。
+- **训练信号**：
+  - SFT：loss 曲线与 grad_norm（`result/round2/results/formal_sft/metrics_*.jsonl`；`max_grad_norm=1.0`）。
+  - RL（`result/round10/rl-2b/continue-final/metrics.jsonl`，字段定义见 `docs/apexo/08_execution_contract.md`）：
+    - `rollout/reward_mean`、`useful_groups`（零方差组被过滤，见 `train/rl_trainer.py` 的 `_useful_groups`）、`train/skipped`；
+    - `train/loss`、`train/kept_frac`、`train/tv_mean`（DPPO binary TV 0.1）；
+    - `sync/logprob_abs_diff`：训练端与 vLLM 的 logprob 一致性；
+    - `rollout/truncated_frac`、`rollout/format_errors_mean`、`done/no_tool_call`。
+  - **KL**：k3 估计 `exp(d) − d − 1`，其中 `d = log π_ref − log π`，截断在 [−20, 20]（`train/losses.py` 的 `k3_kl`）。参考模型就是"关闭 LoRA 的同一个模型"，每 `algo.kl_monitor_every=10` 步算一次；beta=0，只监控、不惩罚（`09_custom_training_design.md`、R9）。
+  - **熵**：`train/entropy`。监控时看是否"> 2× 初值"（`05_testing_plan.md` 的监控表），门禁用的是"末值 ≤ 3× 初值"（`run_eval.py`）。两个数都照写，不要合并成一个。
+  - **格式塌陷**：最近 10 个训练行的 `done/no_tool_call / rollout/samples` 取平均，必须 ≤ 10%。这个阈值在代码里写死，不随有效调用率阈值变化（`rl_training_checks` 的注释；R8）。
+  - **重复与停止符问题**：R48。官方 Base 只把 `<|endoftext|>` 配成 eos，vLLM 不会停在 `<|im_end|>`，输出就会失控。修复是加停止符、`repetition_penalty=1.05`、`max_tokens=8192`、`command_timeout=300`（`scripts/agent_platform/harbor_eval.py`）。另见提交 `33f3cc5`。
+- **门禁与判定**：
+  - 原阈值：SFT 与 RL 都是有效调用率 ≥ 98%，pass@1 增益 ≥ +0.02 且 CI 下界 > 0。
+  - 修订阈值（10-19，Apexo 阈值）：
+    - SFT：≥ 96%，增益 ≥ +0.01 且 CI 下界 > 0；
+    - RL：≥ 96%，不劣于 −0.01；
+    - KL ≤ 0.2、熵 ≤ 3×、无工具调用 ≤ 10% 不变。
+  - 两套阈值下的结论都写：原阈值下 FAILED，作者人工放行（`sft-user-approved.json`、`rl-user-approved.json`）；修订阈值下 PASSED（`sft-gate-apexo.json`、`rl-gate-apexo.json`、`result/round10/regate/README.md`）。
+  - 修订原因只写作者给的：作者决定按 Apexo 阈值判定。不写成训练前预设。
+  - KL 0.2 在 `05_testing_plan.md` 里标着"暂定，T2 后标定"。记录里没有标定结果，放进「待作者确认」。
+- **实测值**：
+  - Base / SFT / RL 的 pass@1、pass@3、pass@5、有效调用率，SFT 与 RL 的增益和 CI，kl_max 0.1979，无工具调用 8.23%。
+  - 全部照抄 `result/round10/harbor-*/` 下的报告。
+- **CPU 代码**（`examples/ch13_metrics.py` + `tests/test_ch13_metrics.py`）：
+  - 实现 pass@k、有效调用率、配对 bootstrap 和 k3 KL；
+  - 用一个虚构的小数据集演示，测试断言结果与公式一致、与 `evaluation/run_eval.py` 同样输入下的输出一致；
+  - 附一个可选脚本，从源仓库报告重算增益和 CI，不进 CI。
+- **本章必备小节**（`check_book.py` 检查）：`## 动机`、`## 信号总表`、`## 评测信号`、`## 训练信号`、`## 门禁与判定`、`## 实测值`、`## 待作者确认`、`## 本章出处`。
+- 「信号总表」的表头固定为 `| 信号 | 公式 | 样本量 | 数据来源 | 原阈值 | 修订阈值 | 为什么这样算 | 证据 |`，每个信号一行。
+- **本章验收**：
+  1. 上面列出的每个信号都在总表里；
+  2. 公式与源码逐字对应，并注明函数名；
+  3. 样本量写全；
+  4. 原阈值和修订阈值两套结论都写；
+  5. 示例与测试通过；
+  6. 记录里没有的理由写进「待作者确认」。
+- **待作者确认**（记录里没有）：
+  1. 为什么 pass@1 用按任务的宏平均，而有效调用率用按步的合并；
+  2. 为什么 bootstrap 用 2,000 次、种子 0；
+  3. KL 0.2 是否标定过；
+  4. 为什么熵的监控用 2×、门禁用 3×；
+  5. 为什么格式塌陷看最近 10 步。
+
+### 第 14 章 结果与诚实复盘
 
 - 三次全量评测对比：pass@1 0.00% → 1.12% → 0.90%；valid_tool_call_rate 88.96% → 96.58% → 96.24%；各自解出了哪些任务。
 - 门禁结论（Apexo 阈值）：SFT **PASSED**（有效调用率 96.58%；pass@1 增益 +0.0112，CI [+0.0022, +0.0247]）；RL **PASSED**（有效调用率 96.24%；pass@1 变化 −0.0022，CI [−0.0112, +0.0067]；kl_max 0.1979；无工具调用 8.23%）。素材：`result/round10/harbor-sft-2b/sft-gate-apexo.json`、`result/round10/harbor-rl-2b/rl-gate-apexo.json`。
 - 讲清楚门禁通过能说明什么、不能说明什么：RL 只是"没有明显变差"，不是"变好了"。
 - 只做了 8 步 RL、2B 单卡，结论边界；本项目不和任何外部报告的数字做比较。
-- 4B 为什么停（作者 2026-10-19 确认）：**成本太高**。4B 完成了 SFT（第 6 章），之后没有继续 RL 和全量评测。
+- 4B 为什么停（作者 2026-10-19 确认）：**成本太高**。4B 完成了 SFT（第 7 章），之后没有继续 RL 和全量评测。
 - 素材：`result/round10/conclusion.md`、`result/round10/harbor-*/`、§3。
 - 如果重来（作者 2026-10-19 回答）：大概会直接沿用现有方法，只是预算会更多。
 
-### 第 13 章 工程纪律：让这个项目可复盘的那些规矩
+### 第 15 章 工程纪律：让这个项目可复盘的那些规矩
 
 - AGENTS.md 的规则：每轮记录、失败也留档、固定 revision/manifest/seed、先文档后代码、目录 README。
 - 资源回收：每次结束都要 VERIFIED；提交前两次核对；不把 STOP 当删除。
@@ -186,13 +287,13 @@ PR 描述里要列出：本批每个数字/结论的出处、`check_book.py` 和
 
 ## 已知记录缺口
 
-无待作者回答的问题（截至 2026-10-19）。
+待作者回答的问题：第 6 章 4 条、第 13 章 5 条（2026-10-19 20:36 SGT 新增两章时产生，详见两章的「待作者确认」）。写到这两章时汇总发给作者。
 
 已解决（作者 2026-10-19 回答）：
 - 实际花费：约 200 美元，全部是 Google Cloud。
 - 4B 停止原因：成本太高。
 - 方法归属：Apexo，作者自行设计。
-- 门禁阈值：Apexo 阈值，见第 10 章。
+- 门禁阈值：Apexo 阈值，见第 13 章。
 - 源仓库引用方式：保持私有，用纯文本写路径和提交号。
 - 为什么去掉 Daytona：GCP 上已有能承载沙箱的 VM。
 - 为什么选 2B：足够小。
@@ -206,7 +307,7 @@ PR 描述里要列出：本批每个数字/结论的出处、`check_book.py` 和
 | --- | --- |
 | 1 | 第 0、1 章 |
 | 2 | 第 2、3、4 章 |
-| 3 | 第 5、6 章 |
-| 4 | 第 7、8、9 章 |
-| 5 | 第 10、11 章 |
-| 6 | 第 12、13 章与附录 |
+| 3 | 第 5、6、7 章 |
+| 4 | 第 8、9、10 章 |
+| 5 | 第 11、12、13 章 |
+| 6 | 第 14、15 章与附录 |
