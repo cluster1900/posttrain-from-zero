@@ -1,30 +1,168 @@
 #!/usr/bin/env python3
-"""Deterministic original SVG schematics; no measured data or extra dependencies."""
-from pathlib import Path
+"""Generate five original, deterministic Chinese SVG figures, using only stdlib.
+
+Measured data is a minimal sanitized snapshot of conclusion §2.1 at ca57456.
+No access to the private source repository is needed to regenerate these files.
+"""
 from html import escape
+import json
+from pathlib import Path
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'images'
+FONT = 'Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif'
+INK = '#18243b'
+BLUE = '#386bb3'
+TEAL = '#087f83'
+ORANGE = '#bd6920'
 
-def diagram(name, title, boxes, footer):
-    elements = ['<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img">',
-        f'<title>{escape(title)}</title>', '<rect width="960" height="300" fill="#f7f8fc"/>',
-        '<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#44536d"/></marker></defs>',
-        '<g font-family="sans-serif" fill="#18243b">',
-        f'<text x="35" y="45" font-size="24" font-weight="bold">{escape(title)}</text>']
-    for i, (head, detail) in enumerate(boxes):
-        x=35+i*235
-        elements.extend([f'<rect x="{x}" y="90" width="210" height="110" rx="12" fill="white" stroke="#637cb2"/>',
-          f'<text x="{x+14}" y="125" font-size="19">{escape(head)}</text>',
-          f'<text x="{x+14}" y="165" font-size="15">{escape(detail)}</text>'])
-        if i < len(boxes)-1:
-            elements.append(f'<path d="M{x+212} 145 L{x+232} 145" stroke="#44536d" stroke-width="2" marker-end="url(#arrow)"/>')
-    elements.extend([f'<text x="35" y="250" font-size="17">{escape(footer)}</text>', '</g></svg>'])
-    (OUT/name).write_text('\n'.join(elements)+'\n', encoding='utf-8')
+class SVG:
+    def __init__(self, title, height=360):
+        self.parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="{height}" viewBox="0 0 1200 {height}" role="img">',
+                      f'<title>{escape(title)}</title>',
+                      f'<rect width="1200" height="{height}" fill="#f7f8fc"/>',
+                      '<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>',
+                      f'<g font-family="{FONT}" fill="{INK}">']
+        self.text(40, 40, title, 27, weight='bold')
+
+    def text(self, x, y, value, size=20, anchor='start', color=INK, weight='normal'):
+        # dy places the visual center of CJK glyphs near y in all target renderers.
+        self.parts.append(f'<text x="{x}" y="{y}" dy="0.35em" font-size="{size}" text-anchor="{anchor}" fill="{color}" font-weight="{weight}">{escape(str(value))}</text>')
+
+    def rect(self, x, y, w, h, fill='white', stroke='#a0b2cd', radius=10):
+        self.parts.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}" fill="{fill}" stroke="{stroke}"/>')
+
+    def line(self, path, arrow=False, color='#52657e'):
+        end = ' marker-end="url(#arrow)"' if arrow else ''
+        self.parts.append(f'<path d="{path}" fill="none" stroke="{color}" stroke-width="2"{end}/>')
+
+    def save(self, name):
+        (OUT / name).write_text('\n'.join(self.parts + ['</g></svg>']) + '\n', encoding='utf-8')
+
+
+def flow(name, title, boxes, footer):
+    s = SVG(title, 310)
+    for i, (head, lines) in enumerate(boxes):
+        x = 40 + 292*i
+        s.rect(x, 95, 244, 125)
+        s.text(x+122, 125, head, 22, 'middle', weight='bold')
+        for j, text in enumerate(lines):
+            s.text(x+122, 162+j*27, text, 17, 'middle')
+        if i < 3:
+            s.line(f'M{x+247} 157 H{x+283}', True)
+    s.text(40, 270, footer, 18)
+    s.save(name)
+
+
+def lora():
+    s = SVG('LoRA 并行路径：冻结基座与低秩增量相加', 390)
+    s.rect(40, 160, 150, 70)
+    s.rect(330, 85, 365, 85)
+    s.rect(330, 235, 365, 85)
+    s.rect(1010, 160, 150, 70)
+    s.parts.append('<circle cx="880" cy="195" r="32" fill="white" stroke="#a0b2cd"/>')
+    s.text(115, 195, '输入 x', 23, 'middle')
+    s.text(512, 111, '冻结的基座权重', 22, 'middle', weight='bold')
+    s.text(512, 144, 'W x', 22, 'middle')
+    s.text(512, 260, '可训练的低秩增量', 22, 'middle', weight='bold')
+    s.text(512, 293, '(α / r) B A x', 22, 'middle')
+    s.text(880, 195, '+', 32, 'middle')
+    s.text(1085, 195, '输出 y', 23, 'middle')
+    for path in ['M190 195 H250 V127 H325', 'M250 195 V277 H325',
+                 'M695 127 H770 V175 L845 187', 'M695 277 H770 V215 L845 203', 'M912 195 H1005']:
+        s.line(path, True)
+    s.text(40, 357, '原理示意，非项目测量。A 的形状：r × d_in；B 的形状：d_out × r。基座权重保持冻结。', 19)
+    s.save('ch01_lora.svg')
+
+
+def metrics():
+    data = json.loads((ROOT / 'scripts/data/batch1_metrics.json').read_text(encoding='utf-8'))
+    s = SVG('项目实测：Base、SFT 与 RL 的评测结果', 680)
+    s.text(40, 83, 'Qwen3.5-2B · Terminal-Bench 2.0 · 每阶段 89 个任务 × 5 次尝试 = 445 次试验', 21)
+    s.rect(35, 122, 690, 427)
+    s.rect(745, 122, 420, 427)
+    s.text(60, 155, '任务通过率（%）', 23, weight='bold')
+    for i, (label, color) in enumerate([('pass@1', BLUE), ('pass@3', TEAL), ('pass@5', ORANGE)]):
+        x = 290 + i*128
+        s.rect(x, 146, 16, 16, color, color, 2)
+        s.text(x+24, 155, label, 18)
+    s.text(770, 155, '有效工具调用率（%）', 23, weight='bold')
+    for tick in range(6):
+        x = 150+tick*94
+        s.line(f'M{x} 195 V510', color='#e0e5ee')
+        s.text(x, 526, str(tick), 16, 'middle')
+    for i, stage in enumerate(data['stages']):
+        y = 232 + i*112
+        s.text(65, y+21, stage['name'], 21, weight='bold')
+        for j, (key, color) in enumerate([('pass_at_1', BLUE), ('pass_at_3', TEAL), ('pass_at_5', ORANGE)]):
+            val = stage[key]
+            yy = y-17+j*27
+            width = float(val)*94
+            if width:
+                s.rect(150, yy, width, 18, color, color, 2)
+            else:
+                s.line(f'M150 {yy} V{yy+18}', color=color)
+            s.text(160+width, yy+9, val+'%', 17, color=color)
+        s.text(770, y+1, stage['name'], 21, weight='bold')
+        value = stage['valid_tool_call_rate']
+        s.rect(835, y-9, 225, 22, '#e8edf4', '#e8edf4', 3)
+        s.rect(835, y-9, float(value)*2.25, 22, TEAL, TEAL, 3)
+        s.text(1070, y+2, value+'%', 17, color=TEAL)
+    s.text(835, 526, '0', 16, 'middle')
+    s.text(1060, 526, '100', 16, 'middle')
+    s.text(40, 580, '本次 SFT 的三项通过率均高于 RL；工具调用格式有效不等于任务完成。两图使用不同横轴范围。', 20)
+    s.text(40, 620, f"来源：{data['source']} · 最终结项总结 §2.1", 18)
+    s.text(40, 650, f"来源提交：{data['source_commit']}；百分数保留来源显示精度。仅展示本项目结果，不代表通用算法排名。", 18)
+    s.save('ch00_metrics.svg')
+
+
+def label_shift():
+    s = SVG('标签移位与损失掩码：位置 t 预测位置 t + 1', 590)
+    s.text(40, 83, '位置从 0 开始；原始 logits 序列长度为 4；标签为 [-100, -100, 2, 3]。', 21)
+    xs = [310, 545, 780, 1015]
+    s.text(40, 137, '原始位置', 20)
+    for i, x in enumerate(xs):
+        s.text(x, 137, str(i), 22, 'middle', weight='bold')
+    s.text(40, 202, '模型分数', 20)
+    s.text(40, 329, '原始标签', 20)
+    for i, x in enumerate(xs):
+        s.rect(x-86, 173, 172, 58, '#ffffff' if i<3 else '#e8edf4')
+        s.text(x, 202, f'logits[{i}]', 21, 'middle')
+        val = [-100, -100, 2, 3][i]
+        s.rect(x-86, 300, 172, 58, '#e8edf4' if val == -100 else '#e5f3ee')
+        s.text(x, 329, str(val), 23, 'middle')
+        if i < 3:
+            s.line(f'M{x+32} 235 L{xs[i+1]-32} 295', True)
+    s.text(460, 245, '忽略目标', 17, 'middle')
+    s.text(700, 245, '监督目标', 17, 'middle', color=TEAL)
+    s.text(935, 245, '监督目标', 17, 'middle', color=TEAL)
+    s.text(1015, 400, '末位分数不参与配对', 18, 'middle')
+    s.text(310, 400, '首位标签移位后移除', 18, 'middle')
+    s.rect(40, 436, 1120, 76, '#ffffff')
+    s.text(62, 460, '实际配对：logits[0:3]  ↔  labels[1:4] = [-100, 2, 3]；只有 2 个目标计入损失。', 21)
+    s.text(62, 492, '位置 1 的分数预测标签 2；位置 2 的分数预测标签 3。不要在模型内部移位后再次移位。', 19)
+    s.text(40, 552, '原理示意，非项目测量。-100 只忽略对应目标的损失，不会删除输入上下文，也不是注意力掩码。', 19)
+    s.save('ch01_label_shift.svg')
+
+
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    flow('ch00_pipeline.svg', '项目后训练流程：从冻结数据到可核验评测',
+         [('数据冻结', ['确定训练与评测边界', '记录版本与数据来源']),
+          ('LoRA SFT', ['监督微调', '学习目标输出格式']),
+          ('Apexo RL', ['强化学习', '基于真实沙箱反馈']),
+          ('评测与对比', ['Harbor 评测框架', 'Terminal-Bench 2.0'])],
+         '流程示意，非项目测量。对 Base、SFT、RL 分阶段评测；训练完成并不保证指标提升。')
+    flow('ch01_training_step.svg', '一次优化器更新：按监督词元数加权累积',
+         [('统计监督词元', ['N 为本次更新的', '有效监督词元总数']),
+          ('逐个微步反传', ['每个微步：', '负对数似然之和 / N']),
+          ('汇总并裁剪梯度', ['所有微步完成后', '只做一次梯度裁剪']),
+          ('更新与清零', ['优化器更新一次', '然后清空梯度'])],
+         '原理示意，非项目测量。微步之间不更新参数、不清空梯度；归一化分母覆盖本次更新。')
+    lora()
+    metrics()
+    label_shift()
+    print('Generated 5 SVG figures (4 schematics + 1 measured comparison)')
 
 if __name__ == '__main__':
-    OUT.mkdir(parents=True, exist_ok=True)
-    diagram('ch01_training_step.svg', 'One optimizer update: token-weighted accumulation',
-        [('Count tokens', 'N = all supervised tokens'), ('Micro-steps', 'backward(NLL_sum / N)'), ('Accumulated grad', 'clip once after all steps'), ('Update', 'step, then zero_grad')],
-        'Schematic only. No intermediate optimizer update; no project measurements.')
-    (OUT/'ch01_lora.svg').write_text('<svg xmlns="http://www.w3.org/2000/svg" width="960" height="340" viewBox="0 0 960 340" role="img">\n<title>LoRA parallel paths: frozen base plus trainable low-rank update</title>\n<rect width="960" height="340" fill="#f7f8fc"/>\n<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#44536d"/></marker></defs>\n<g font-family="sans-serif" fill="#18243b"><text x="35" y="40" font-size="23" font-weight="bold">LoRA: parallel paths, then addition</text>\n<g fill="white" stroke="#637cb2"><rect x="35" y="140" width="120" height="60" rx="10"/><rect x="280" y="65" width="270" height="65" rx="10"/><rect x="280" y="215" width="270" height="65" rx="10"/><circle cx="685" cy="170" r="28"/><rect x="785" y="140" width="140" height="60" rx="10"/></g>\n<g font-size="19"><text x="55" y="177">Input x</text><text x="300" y="103">Frozen base: W x</text><text x="296" y="242">Trainable: (alpha / r) B A x</text><text x="676" y="177">+</text><text x="801" y="177">Output y</text></g>\n<g fill="none" stroke="#44536d" stroke-width="2" marker-end="url(#a)"><path d="M155 170 H205 V97 H278"/><path d="M205 170 V247 H278"/><path d="M550 97 H615 V155 L657 165"/><path d="M550 247 H615 V185 L657 175"/><path d="M713 170 H783"/></g>\n<text x="35" y="320" font-size="16">Schematic only. A: r x d_in; B: d_out x r. Base weights stay frozen.</text></g></svg>\n', encoding='utf-8')
-    print('Generated 2 SVG schematics')
+    main()

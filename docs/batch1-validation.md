@@ -7,12 +7,12 @@
 - 隔离 CPU 环境：Linux x86_64，Python 3.12.14，torch 2.10.0+cpu，transformers 5.6.0，peft 0.18.1，tokenizers 0.22.2；CUDA build 为 None，CUDA 不可用。
 - `python examples/ch01_pytorch.py all`：六节断言全部通过。覆盖张量、累积、断点恢复、bf16/checkpoint/LoRA、移位 mask、纯本地 Transformers。
 - 禁止 Python socket 建立外连的额外检查中，六节均通过。依赖安装需要网络，但示例运行不下载模型。
-- `python -m pytest -q tests`：11 passed（6.48s），包括六节参数化测试、禁止外连的 CLI、正文六段代码逐字一致/执行检查与命名门禁回归。
+- `python -m pytest -q tests`：17 passed（7.07s），包括六节参数化测试、禁止外连的 CLI、正文六段代码逐字一致/执行检查与命名门禁 A1 输出回归、源码摘录不执行隔离、图表数据与引用检查。
 - `python -m pip check`：无依赖冲突。
-- `python scripts/draw_ch01.py`：生成两张确定性 SVG 示意图，非实测曲线。
+- `python scripts/draw_ch01.py`：生成五张确定性 SVG：四张示意图、一张项目实测指标对比图。
 - `python3 build.py`：Pandoc 3.1.11.1 成功生成 HTML 与 EPUB。
 - EPUBCheck 5.3.0 本地验证：valid=True，messages=[]（通过 PyPI epubcheck 包所带检查器调用）；CI 另运行发行版 epubcheck。
-- `python scripts/check_built_book.py`：HTML/EPUB 结构、两张嵌入图、六段正文 Python 代码全部通过。
+- `python scripts/check_built_book.py`：HTML/EPUB 结构、五张嵌入图、六段正文 Python 代码全部通过。
 
 ## 已知提示与边界
 
@@ -22,3 +22,10 @@
 - 未做 GPU、分布式、吞吐、显存峰值、正式训练结果复现，也未进行所有 EPUB 阅读器的兼容性测试。
 - 更新到大纲 v3 后，保留上游 `scripts/check_book.py` 作为构建前门禁；只修正其把标准算子 softmax 误判成旧名称的子串误报，并有正反回归测试。
 - HTML 与 EPUB 的结构、资源嵌入、目录和源码示例另由 `scripts/check_built_book.py` 检查。远程 CI 会重跑教学例子与构建，但本分支不会部署 Pages。
+
+## 首轮审核修订验证
+
+- 五张 SVG 均用 Inkscape 和已安装 Noto Sans CJK SC 栅格化，逐张检查实际中文像素；没有缺字、文字遮挡或裁切。LoRA 为并行求和，label 图按零基位置对齐。
+- 六段静态源码摘录逐一对照 `ca57456`，数据集标识的唯一替换已在正文说明，原始署名保留在许可附录。
+- 图表仅使用 `scripts/data/batch1_metrics.json` 的脱敏百分数摘录，逐值对应结项总结 §2.1，不重新计算或修改原始指标。
+- `check_built_book.py` 根据正文图片引用数核验资源，不再写死两张；只执行教学代码，跳过带 `.source-excerpt` 的项目片段。

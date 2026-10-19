@@ -14,10 +14,14 @@
 | Harbor / Terminal-Bench 2.0 维护者 | 评测框架与基准 | 源清单要求参阅各自仓库；本批不猜测统一许可证 |
 | Qwen 团队，`Qwen/Qwen3.5-2B-Base` / `Qwen/Qwen3.5-4B-Base` | 基座模型，revision 在源配置中固定 | 源清单要求参阅各模型卡；不将数据许可套用到模型 |
 
-## 本章技术背景
+## 第 0–1 章技术背景
 
 - PyTorch 团队：张量、autograd、nn.Module、checkpoint、交叉熵 API。正文链接官方文档。
 - Hugging Face 团队及贡献者：Transformers、Tokenizers、PEFT 的加载与适配器接口。正文链接官方聊天模板文档。
 - Edward J. Hu 等：LoRA: Low-Rank Adaptation of Large Language Models，https://arxiv.org/abs/2106.09685 。本章保留 LoRA 的公开技术来源，不称其由本项目首次提出。
 
 配套教学代码与 SVG 是新写的小规模示例，并非上述项目源码的改名副本。本批不分发第三方数据、模型或 harness；如果后续批次摘录或分发第三方材料，必须继续检查相关许可证、版权声明与 NOTICE 要求，而非仅依此表推定已履行所有义务。
+
+## 项目源码摘录
+
+第 1 章的静态源码摘录来自作者授权整理的项目，按正文逐项注明路径、行号和提交 `ca57456`，不是独立可运行示例。摘录保留代码中的接口和归属线索；其中一个数据集标识在正文作明示替换，原始公开数据来源仍见上表。源项目此版本未提供根目录 LICENSE，本书不据此推定新的开源软件许可，也不将 PyTorch、PEFT 或 LoRA 归为本项目原创。

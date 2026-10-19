@@ -4,13 +4,15 @@
 
 读后训练代码最容易遇到的障碍，不是看不懂某个 Python 语句，而是不知道张量代表什么。一个维度是样本、token，还是词表？loss 是一条轨迹的均值，还是整个更新步的均值？`checkpoint` 指保存到磁盘，还是反向时重算激活？这些差别会直接改变训练结果。
 
-本章先用小例子建立心智模型，再对照真实代码。所有教学数值均为人为构造，与项目实测数字无关。配套程序在本书 `examples/ch01_pytorch.py`；在仓库根目录按 `requirements-examples.txt` 安装 CPU 教学依赖后运行：
+本章先用小例子建立心智模型，再对照真实代码。所有教学数值均为人为构造，与项目实测数字无关。配套程序在本书 `examples/ch01_pytorch.py`；在仓库根目录先从 CPU 索引安装 torch，再安装固定教学依赖。只运行第二条安装命令可能从默认索引安装 CUDA 运行时，因此请保留这两步：
 
 ```bash
+python3 -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+python3 -m pip install -r requirements-examples.txt
 python3 examples/ch01_pytorch.py
 ```
 
-程序不访问模型 Hub，不需要私有数据，也不需要 GPU。每节对应一组断言，而不是只打印一个看起来合理的 loss。正文中六段 Python 代码原样汇集于 `examples/ch01_snippets.py`；测试同时检查逐字一致与执行结果。项目的 GPU 环境另有一套锁定依赖：`torch==2.10.0`、`transformers==5.6.0`、`peft==0.18.1`、`vllm==0.19.1`。这是源仓库 `requirements.txt`（提交 `ca57456`）的记录，不是让 CPU 入门例子安装整个推理栈。运行环境与验证结果见本书 `docs/batch1-validation.md`。
+程序不访问模型 Hub，不需要私有数据，也不需要 GPU。每节对应一组断言，而不是只打印一个看起来合理的 loss。正文中六段可独立执行的 Python 教学代码原样汇集于 `examples/ch01_snippets.py`；测试同时检查逐字一致与执行结果。带 `.source-excerpt` 标记的项目源码摘录只用于阅读，不作为独立 CPU 程序执行；它们依赖项目上下文。项目的 GPU 环境另有一套锁定依赖：`torch==2.10.0`、`transformers==5.6.0`、`peft==0.18.1`、`vllm==0.19.1`。这是源仓库 `requirements.txt`（提交 `ca57456`）的记录，不是让 CPU 入门例子安装整个推理栈。运行环境与验证结果见本书 `docs/batch1-validation.md`。
 
 ## 1.1 张量：先看形状，再看精度和设备
 
@@ -79,13 +81,39 @@ assert torch.isclose(w.detach(), torch.tensor(0.4))
 
 源训练器不是把每条序列的平均 loss 再除以 16。它先数出本次更新所有可训练 token 的总数 `global_tokens`，再让每条序列的 **NLL 总和 / global_tokens** 反向。因此，一个更新步中的每个被监督 token 拥有相同权重，长度不同的轨迹不会被误当作相同数量的 token。
 
-例如一条轨迹有 2 个监督 token，另一条有 6 个，总数为 8。先各自取均值再平均，会让短轨迹每个 token 的权重为长轨迹的 3 倍；先求和再除以 8，才是此处的 token-level mean。这是构造例子，不是项目数据分布。
+例如一条轨迹有 2 个监督 token，另一条有 5 个，总数为 7。先各自取均值再平均，会让短轨迹每个 token 的权重为长轨迹的 2.5 倍；先求和再除以 7，才是此处的 token-level mean。这是构造例子，不是项目数据分布。
 
 ![一次更新中的微步与统一归一化（示意，不是测量）](images/ch01_training_step.svg)
 
 配套程序比较“大批一次反向”和“按同一总 token 数分母累积反向”的参数更新，并加入不同长度样本的断言。等价性依赖条件：参数在 micro-step 之间不能提前更新，归一化必须相同；dropout、跨样本运算和浮点求和顺序可能带来差异。不要把玩具例子的数值一致提升为任何模型都逐位一致。
 
 最后才做梯度裁剪与 `optimizer.step()`，然后清梯度。源项目的顺序是：累积 → 跨 rank 梯度求和 → `clip_grad_norm_` → `optimizer.step()` → scheduler → 清梯度。若每条轨迹都先裁剪，等效优化问题就变了。来源：`train/sft_trainer.py::train`，提交 `ca57456`。
+
+
+源代码摘录（不执行）：`train/sft_trainer.py` L183–L200，提交 `ca57456`。
+
+```{.python .source-excerpt}
+        batch = rank_shard(order[k * gbs : (k + 1) * gbs], info.rank, info.world_size)
+        local_tokens = sum(examples[i].num_label_tokens for i in batch)
+        global_tokens = D.all_reduce_sum(local_tokens, info)
+        nll_sum = 0.0
+        for i in batch:
+            ex = examples[i]
+            ids = torch.tensor(ex.input_ids, device=info.device)
+            labels = torch.tensor(ex.labels[1:], device=info.device)
+            mask = labels != -100
+            logp = MU.sequence_logprobs(model, head_w, ids, chunk)
+            loss = -(logp * mask).sum() / global_tokens
+            loss.backward()
+            nll_sum += float(-(logp.detach() * mask).sum())
+        D.all_reduce_grads(params, info)
+        grad_norm = float(torch.nn.utils.clip_grad_norm_(params, max_grad_norm))
+        optimizer.step()
+        scheduler.step()
+        optimizer.zero_grad(set_to_none=True)
+```
+
+这里的 `global_tokens` 在进入 micro-step 循环前确定，所以每条轨迹使用相同的分母。`loss.backward()` 在循环内，`optimizer.step()` 在循环外；这两层缩进就是“累积后只更新一次”的实现。`nll_sum` 用 detach 后的量记录日志，不会把日志路径接进梯度图。
 
 ## 1.3 nn.Module、state_dict 与恢复训练
 
@@ -186,13 +214,35 @@ loss = loss_sum / count
 loss.backward()
 ```
 
-本例中，位置 1 的预测对应 label 2，位置 2 的预测对应 label 3。监督掩码跟随目标移位，而不是随便切掉一头。若一个样本没有任何可训练 token，必须跳过或报错，不能除以零，也不能把“没有监督”假装成成功训练。
+本例中的位置从 0 开始计数：位置 1 的预测对应 label 2，位置 2 的预测对应 label 3。监督掩码跟随目标移位，而不是随便切掉一头。若一个样本没有任何可训练 token，必须跳过或报错，不能除以零，也不能把“没有监督”假装成成功训练。
+
+![从零开始的位置、下一 token 预测、label 移位与 -100 掩码（教学示意）](images/ch01_label_shift.svg)
 
 ### 真实项目比“role 等于 assistant”更严格
 
 源项目 `train/dataset.py` 并非给所有 assistant 文本打标签。默认只训练带正确生成前缀、且包含一个有效 bash 调用的轮次。生成前缀本身不算目标；前缀之后的推理文本、关闭思考标记、内容、工具调用以及结束标记才构成目标段。system、user、工具返回和无效轮次保持忽略。
 
 还要注意分词边界：字符边界不是 token 边界。一个 token 可能跨越“前缀结束”与“生成内容开始”。源代码分段 tokenize 再拼接，使训练输入与 rollout 的增量拼接方式一致；超长样本直接丢弃而非截断。这些选择将在第 5 章详细验证，本章不把简化 mask 当成完整的数据处理器。
+
+
+源代码摘录（不执行）：`train/dataset.py` L3–L16，提交 `ca57456`。其中数据集标识已替换为 `[公开 SFT 轨迹集]`；原始署名见当前许可附录，其他内容逐行保留。
+
+```{.text .source-excerpt}
+Labelled span per assistant turn = text after the generation prefix `<|im_start|>assistant\\n<think>\\n` up to and
+including `<|im_end|>` (reasoning + `</think>` + content + tool call + end token). Everything else
+(system, user, tool responses, the prefix itself) is -100.
+
+Tokenisation is PIECEWISE: the rendered text is cut at every span boundary and each piece is tokenised on its own,
+then concatenated. This reproduces the RL rollout exactly (prompt tokenised up to `<think>\\n`, generated tokens
+appended, observation suffix tokenised separately) and avoids merged tokens across the boundary (e.g. an empty
+reasoning renders `<think>\\n\\n</think>`, whose `\\n\\n` would otherwise be ONE token straddling the prefix).
+
+Findings on [公开 SFT 轨迹集] that this module handles (see docs/apexo/03_data_plan.md):
+- some assistant `content` contains a stray `</think>` -> removed;
+- format-error feedback user turns make earlier empty-reasoning turns render without `<think>` -> not labelled;
+- assistant turns without a tool call (format failures) -> not labelled by default.
+Over-length examples are DROPPED, never truncated.
+```
 
 ### 按 token 归一化，把第二节闭合起来
 
@@ -202,13 +252,39 @@ loss.backward()
 
 来源：`train/dataset.py::build_sft_example`、`train/model_utils.py::sequence_logprobs`、`train/losses.py::chunked_token_logprobs`、`train/sft_trainer.py::train`，提交 `ca57456`。
 
+
+源代码摘录（不执行）：`train/losses.py` L112–L130，提交 `ca57456`。
+
+```{.python .source-excerpt}
+def chunked_token_logprobs(
+    hidden: torch.Tensor,
+    weight_fp32: torch.Tensor,
+    targets: torch.Tensor,
+    chunk_size: int = 1024,
+) -> torch.Tensor:
+    """log p(targets[t] | hidden[t]) with an fp32 lm-head, chunked and recomputed in backward.
+
+    hidden: [T, H] (any float dtype, requires grad); weight_fp32: [V, H] frozen fp32; targets: [T] long.
+    """
+    out = []
+    for s in range(0, hidden.shape[0], chunk_size):
+        h, t = hidden[s : s + chunk_size], targets[s : s + chunk_size]
+        if torch.is_grad_enabled() and h.requires_grad:
+            out.append(checkpoint(_chunk_logprobs, h, weight_fp32, t, use_reentrant=False))
+        else:
+            out.append(_chunk_logprobs(h, weight_fp32, t))
+    return torch.cat(out) if out else hidden.new_zeros(0, dtype=torch.float32)
+```
+
+`h` 与 `t` 每次切出对应的一段隐藏状态和目标 token；当需要梯度时经 `checkpoint` 重算，评估时直接调用同一个计算函数。最后拼接的仍是逐 token log-probability，而不是先平均每一块：块长不同不应改变最终 token 权重。
+
 ## 1.6 Transformers、分词器和聊天模板
 
 ### 加载的是一组相互匹配的约定
 
 `AutoTokenizer` 负责把文本与 token ID 联系起来；`AutoModelForCausalLM` 根据配置选择因果语言模型结构。名字里的 Auto 不代表“任何权重都能互换”。模型结构、词表大小、special token、revision 与聊天模板必须匹配。
 
-教学程序在临时目录创建极小的 tokenizer 与随机初始化模型，保存后通过 Auto 接口从本地加载，并设置只读本地文件。这样可以练习真实 API，不必下载大模型。随机模型没有学会对话；即使它能输出 token，也不能用输出质量评估后训练。
+教学程序在临时目录创建极小的 tokenizer 与随机初始化模型，保存后通过 Auto 接口并用 `local_files_only=True` 只从本地目录加载。这样可以练习真实 API，不必下载大模型。随机模型没有学会对话；即使它能输出 token，也不能用输出质量评估后训练。
 
 源项目则固定官方模型 revision，加载 tokenizer 后安装项目模板；模型按指定 dtype 与 attention implementation 加载，关闭缓存，再按需开启重算。其导出还有官方权重布局与文本模型布局的名称映射。本章只解释“加载接口”的基础，不提供一个未经验证的通用 Qwen 导出捷径。
 
@@ -231,6 +307,77 @@ loss.backward()
 | 累积、裁剪、优化器、断点 | `train/sft_trainer.py` | 一步更新有几条序列？分母是什么？ |
 | 标签与模板边界 | `train/dataset.py` | 哪些 token 仅作为上下文？ |
 | 固定实验设置 | `configs/sft/qwen35_2b_lora.yaml` | 配置是否真的传到对应函数？ |
+
+
+源代码摘录（不执行）：`train/model_utils.py` L95–L122，提交 `ca57456`。
+
+```{.python .source-excerpt}
+def apply_lora(model, lora_cfg: dict):
+    from peft import LoraConfig, get_peft_model
+
+    config = LoraConfig(
+        r=int(lora_cfg.get("r", 64)),
+        lora_alpha=float(lora_cfg.get("alpha", 64)),  # float: alpha=32.5 must not truncate
+        lora_dropout=float(lora_cfg.get("dropout", 0.0)),
+        target_modules=list(lora_cfg.get("target_modules", DEFAULT_LORA_TARGETS)),
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
+    peft_model = get_peft_model(model, config)
+    _assert_head_frozen(peft_model)
+    return peft_model
+
+
+def load_lora(model, adapter_dir: str, is_trainable: bool = True):
+    from peft import PeftModel
+
+    peft_model = PeftModel.from_pretrained(model, adapter_dir, is_trainable=is_trainable)
+    _assert_head_frozen(peft_model)
+    return peft_model
+
+
+def _assert_head_frozen(peft_model) -> None:
+    _, head = get_backbone_and_head(peft_model)
+    if head.weight.requires_grad:
+        raise RuntimeError("lm_head must stay frozen under LoRA (the fp32 head copy is cached once)")
+```
+
+这里明确把 `target_modules` 传入 PEFT，而不是只声明 r 就认为选中了正确位置。新建或恢复 adapter 都调用 `_assert_head_frozen`，把“输出头不能训练”从口头约定变成可失败的断言。
+
+源代码摘录（不执行）：`configs/sft/qwen35_2b_lora.yaml` L7–L19，提交 `ca57456`。
+
+```{.yaml .source-excerpt}
+model:
+  name_or_path: Qwen/Qwen3.5-2B-Base     # official pre-trained checkpoint; template is installed by the project
+  revision: b1485b2fa6dfa1287294f269f5fb618e03d52d7c # pin official Hub revision
+  dtype: bfloat16
+  attn_implementation: sdpa
+  gradient_checkpointing: true
+  lm_head_fp32: true
+
+lora:
+  r: 64
+  alpha: 64
+  dropout: 0.0
+  target_modules: [q_proj, k_proj, v_proj, o_proj, in_proj_qkv, in_proj_z, in_proj_a, in_proj_b, out_proj, gate_proj, up_proj, down_proj]
+```
+
+源代码摘录（不执行）：`configs/sft/qwen35_2b_lora.yaml` L27–L36，提交 `ca57456`。
+
+```{.yaml .source-excerpt}
+train:
+  global_batch_size: 16                   # examples per optimizer step (all ranks)
+  epochs: 2
+  max_steps: -1                           # -1 = derived from epochs
+  lr: 2.0e-4
+  warmup_ratio: 0.03
+  scheduler: linear
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+  logprob_chunk_size: 1024
+```
+
+上面只摘 model、lora、train 三段，未包含原文件首行数据集注释，也未包含资源地址。`max_steps=-1` 表示由 epoch 推导步数，不是执行负数步；`logprob_chunk_size=1024` 是分块计算参数，不是序列最大长度。摘录展示项目配置，不意味着本章玩具模型使用相同规模。
 
 建议先读训练循环，再沿调用关系去看辅助函数。读完本章，你不需要背出所有模块名，但应该能指出五类严重问题：没有调用 backward、每条样本都错误清梯度、用不匹配的分母、label 与 logits 错位、只恢复权重却声称完整续训。
 

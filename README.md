@@ -8,11 +8,16 @@
 
 > **状态**：写作中。本批补齐前言与第 1 章 PyTorch 入门；其余章节见[详细大纲](docs/outline.md)，尚未交付。
 
+每个 PR 都要满足[大纲里的验收标准](docs/outline.md)。
+
 ## 构建
 
 ```bash
-# 需要 pandoc ≥ 3.0
+# 先按下方“CPU 教学例子”安装依赖；需要 pandoc ≥ 3.0
+python3 scripts/check_book.py
+python3 -m pytest -q tests
 python3 build.py      # 生成 dist/index.html 和 dist/posttrain-from-zero.epub
+epubcheck dist/posttrain-from-zero.epub  # 本地需安装；CI 必跑
 ```
 
 推送到 `main` 后，GitHub Actions 会自动构建并部署到 GitHub Pages；推送 `vX.Y.Z` 标签会把 EPUB 和离线网页包附到对应 Release。
@@ -22,13 +27,12 @@ python3 build.py      # 生成 dist/index.html 和 dist/posttrain-from-zero.epub
 | 路径 | 内容 |
 | --- | --- |
 | `chapters/` | 章节 Markdown，按文件名排序合并 |
-| `docs/outline.md` | 详细大纲、写作规则、每章对应的源材料 |
+| `docs/outline.md` | 详细大纲、写作规则、章节写法、验收标准、每章对应的源材料 |
 | `assets/` | 样式与图片（`assets/images/`） |
 | `scripts/` | 审核、构建验证与画图脚本 |
 | `examples/`、`tests/` | CPU 教学例子及逐项 pytest 断言 |
 | `build.py` | Pandoc 构建脚本 |
 | `CHANGELOG.md` | 中文更新日志 |
-
 
 ## CPU 教学例子
 

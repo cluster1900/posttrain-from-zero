@@ -5,7 +5,7 @@
 | 正文事实 / 数字 | 原始来源 | 使用限制 |
 | --- | --- | --- |
 | 2026-10-10 至 10-19；round3 未执行；round4–7 同日 | `docs/apexo/11_timeline.md` | 日历跨度不等于计算时长 |
-| 官方 2B / 4B Base；完整闭环仅 2B | `result/round10/conclusion.md` 最终总结 §1；`configs/sft/qwen35_2b_lora.yaml` | 不补 Base 选型动机 |
+| 官方 2B / 4B Base；完整闭环仅 2B | `result/round10/conclusion.md` 最终总结 §1；`configs/sft/qwen35_2b_lora.yaml`、`configs/sft/qwen35_4b_lora.yaml` | 不补 Base 选型动机 |
 | 89 任务 × 5 次 = 445 trials | `result/round10/conclusion.md` 最终总结 §2.1 | 每阶段相同评测规模 |
 | Base pass@1/3/5 均 0.00%，有效调用率 88.96% | 同上，Base 列 | 按记录显示精度照抄 |
 | SFT pass@1/3/5 为 1.12% / 3.03% / 4.49%，有效调用率 96.58% | 同上，SFT 列 | 不替代 JSON 原始精度 |
@@ -23,9 +23,11 @@
 | 监督生成前缀之后至结束标记；有效 bash 轮次；分段 tokenize；超长丢弃 | `train/dataset.py` | 教学 mask 不是完整的数据清洗器 |
 | Auto 加载、固定 revision、安装模板、关闭 cache、non-reentrant checkpoint | `train/model_utils.py::load_policy` / `load_tokenizer` | 玩具 GPT2 不验证正式 Qwen 模型 |
 
+| 作者补充总花费约 200 美元、全部 GCP、Colab 计算单元不在内；4B 因成本停止 | `docs/apexo/11_timeline.md` 作者补充第 1、2 条 | 作者 2026-10-19 补充，无逐轮账单，不能拆分 |
+
 ## 教学数字与公开技术来源
 
-张量形状、字节数、标量 SGD 的 0 → 0.4、2/6 token 分母例子、低秩矩阵维度、脚本随机种子、微型词表与模型参数均为人为构造，非项目记录。可以从随书代码直接复算。数学讲解是独立解释，未摘抄第三方代码。
+张量形状、字节数、标量 SGD 的 0 → 0.4、2/5 token 分母例子、低秩矩阵维度、脚本随机种子、微型词表与模型参数均为人为构造，非项目记录。可以从随书代码直接复算。数学讲解是独立解释，未摘抄第三方代码。
 
 - PyTorch 2.10 自动微分：https://docs.pytorch.org/docs/2.10/notes/autograd.html
 - PyTorch 2.10 checkpoint：https://docs.pytorch.org/docs/2.10/checkpoint.html
@@ -42,3 +44,11 @@ Apexo 用作项目流程名，不据此删除公开算法归属。本批未复�
 ## 版本核对
 
 发布前发现书仓库大纲 v2、v3 已合并，因此与源提交 `5eec66a` 比较后更新为 `ca57456`。本批所引训练代码、SFT 配置、依赖、THIRD_PARTY 与两个重判 JSON 未变；时间线新增作者回答，结项报告仅补充早期资源状态的后来变更，最终评测表未变。本批不引用资源标识或新增动机。
+
+## 审核修订：源码摘录
+
+新增静态 `.source-excerpt` 阅读片段，均来自 `ca57456`：`train/sft_trainer.py` L183–200；`train/losses.py` L112–130；`train/model_utils.py` L95–122；`train/dataset.py` L3–16（数据集 ID 作明示替换，原名保留在许可附录）；`configs/sft/qwen35_2b_lora.yaml` L7–19、L27–36。未包含资源标识、凭据或首行外部数据集注释。静态片段不执行，教学代码仍单独逐字测试。
+
+## 实测图与示意图
+
+`assets/images/ch00_metrics.svg` 由 `scripts/draw_ch01.py` 根据 `scripts/data/batch1_metrics.json` 生成；该 JSON 是 `result/round10/conclusion.md` 最终总结 §2.1、提交 `ca57456` 的脱敏展示值摘录，保留原百分数字符串。其余四图是中文教学示意，不是测量。

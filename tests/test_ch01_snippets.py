@@ -24,3 +24,22 @@ def test_chapter_snippets_match_and_run():
     module = runpy.run_path(str(module_path))
     for i in range(1, 7):
         module[f'snippet_{i}']()
+
+
+def test_static_source_excerpts_never_become_teaching_blocks():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('built_book', ROOT/'scripts/check_built_book.py')
+    checker = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(checker)
+    document = '''```{.python .source-excerpt}
+raise RuntimeError("must not execute this static source excerpt")
+```
+
+```python
+assert 2 + 2 == 4
+```
+'''
+    assert checker.teaching_blocks(document) == ['assert 2 + 2 == 4\n']
+    chapter = (ROOT/'chapters/01_pytorch.md').read_text()
+    assert chapter.count('.source-excerpt}') == 6
+    assert len(checker.teaching_blocks(chapter)) == 6

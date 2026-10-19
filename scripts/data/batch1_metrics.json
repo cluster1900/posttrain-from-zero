@@ -1,0 +1,17 @@
+{
+  "description": "项目实测；仅摘录最终结项总结第 2.1 节的公开展示指标。百分数按来源显示精度保留，不由已舍入小数重新换算。",
+  "source": "result/round10/conclusion.md",
+  "source_commit": "ca57456",
+  "source_section": "最终结项总结 §2.1",
+  "model": "Qwen3.5-2B",
+  "benchmark": "Terminal-Bench 2.0",
+  "tasks": 89,
+  "attempts_per_task": 5,
+  "trials_per_stage": 445,
+  "unit": "percent",
+  "stages": [
+    {"name": "Base", "pass_at_1": "0.00", "pass_at_3": "0.00", "pass_at_5": "0.00", "valid_tool_call_rate": "88.96"},
+    {"name": "SFT", "pass_at_1": "1.12", "pass_at_3": "3.03", "pass_at_5": "4.49", "valid_tool_call_rate": "96.58"},
+    {"name": "RL", "pass_at_1": "0.90", "pass_at_3": "2.36", "pass_at_5": "3.37", "valid_tool_call_rate": "96.24"}
+  ]
+}
