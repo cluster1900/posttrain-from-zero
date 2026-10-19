@@ -19,15 +19,26 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: "1"
     steps:
       - uses: actions/checkout@v4
-      - name: Install pandoc
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install pandoc, fonts, poppler, epubcheck
         run: |
           set -euo pipefail
           curl -fsSL -o /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/3.5/pandoc-3.5-1-amd64.deb
           sudo dpkg -i /tmp/pandoc.deb
+          sudo apt-get update -q
+          sudo apt-get install -y -q fonts-noto-cjk fonts-dejavu-core poppler-utils epubcheck >/dev/null
           pandoc --version | head -1
-      - name: Review gate (branding, secrets, chapter structure)
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - name: Install build deps (mermaid-cli, puppeteer; uses system Chrome)
+        run: npm ci --no-audit --no-fund
+      - name: Review gate (branding, secrets, chapter structure, figures)
         run: python3 scripts/check_book.py
       - name: CPU examples and tests
         if: hashFiles('examples/**/*.py') != ''
@@ -35,18 +46,37 @@ jobs:
           set -euo pipefail
           python3 -m pip install -q -r requirements-examples.txt
           python3 -m pytest -q tests
-      - name: Build HTML + EPUB
-        run: python3 build.py
-      - name: Validate EPUB
+      - name: Figure scripts reproduce on CPU
+        if: hashFiles('scripts/figures/*.py') != ''
         run: |
           set -euo pipefail
-          sudo apt-get install -y -q epubcheck >/dev/null
+          python3 -m pip install -q -r requirements-examples.txt
+          mkdir -p build/figcheck
+          for f in scripts/figures/*.py; do echo "+ $f"; python3 "$f" --out build/figcheck; done
+      - name: Build self-test fixture (Chinese, mermaid, math, code, tables)
+        run: |
+          set -euo pipefail
+          python3 build.py --src tests/build_fixture --out build/fixture
+          python3 scripts/check_outputs.py build/fixture --min-figures 2 --expect 龘 --expect 损失 --expect 有效调用率 --expect "后训练从 0 到 1"
+          epubcheck build/fixture/posttrain-from-zero.epub
+      - name: Build HTML + EPUB + PDF
+        run: python3 build.py
+      - name: Check outputs
+        run: |
+          set -euo pipefail
+          python3 scripts/check_outputs.py dist --expect "后训练从 0 到 1"
           epubcheck dist/posttrain-from-zero.epub
-      - name: Upload EPUB (for review)
+          mkdir -p build/preview
+          pdftoppm -r 80 -png -f 1 -l 4 dist/posttrain-from-zero.pdf build/preview/page
+          pdftoppm -r 80 -png build/fixture/posttrain-from-zero.pdf build/preview/fixture
+      - name: Upload EPUB + PDF + page previews (for review)
         uses: actions/upload-artifact@v4
         with:
-          name: epub
-          path: dist/posttrain-from-zero.epub
+          name: book
+          path: |
+            dist/posttrain-from-zero.epub
+            dist/posttrain-from-zero.pdf
+            build/preview/
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3

@@ -8,3 +8,8 @@ table { border-collapse: collapse; margin: 1em 0; display: block; overflow-x: au
 th, td { border: 1px solid #ddd; padding: .4em .7em; }
 blockquote { border-left: 4px solid #ddd; margin-left: 0; padding-left: 1em; color: #555; }
 nav#TOC { background: #fafafa; border: 1px solid #eee; padding: .5em 1.5em; border-radius: 6px; }
+figure { margin: 1.2em 0; text-align: center; }
+figure img, img.mermaid-figure { max-width: 100%; height: auto; }
+figcaption { font-size: .92em; color: #555; margin-top: .4em; }
+.downloads { background: #f3f7ff; border: 1px solid #d6e2ff; border-radius: 6px; padding: .5em 1em; }
+math[display="block"] { overflow-x: auto; }
