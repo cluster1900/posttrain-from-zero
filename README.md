@@ -11,9 +11,13 @@
 ## 构建
 
 ```bash
-# 需要 pandoc ≥ 3.0
-python3 build.py      # 生成 dist/index.html 和 dist/posttrain-from-zero.epub
+python3 scripts/check_book.py                      # 审核门禁：命名、保密、章节结构、出处、示例测试
+pip install -r requirements-examples.txt && pytest -q tests   # 有 examples/ 时：CPU 示例测试
+python3 build.py                                   # 需要 pandoc ≥ 3.0；生成 dist/index.html 和 dist/posttrain-from-zero.epub
+epubcheck dist/posttrain-from-zero.epub            # 可选：本地校验 EPUB（CI 必跑）
 ```
+
+每个 PR 都要满足[大纲里的验收标准](docs/outline.md)。
 
 推送到 `main` 后，GitHub Actions 会自动构建并部署到 GitHub Pages；推送 `vX.Y.Z` 标签会把 EPUB 和离线网页包附到对应 Release。
 
@@ -22,8 +26,9 @@ python3 build.py      # 生成 dist/index.html 和 dist/posttrain-from-zero.epub
 | 路径 | 内容 |
 | --- | --- |
 | `chapters/` | 章节 Markdown，按文件名排序合并 |
-| `docs/outline.md` | 详细大纲、写作规则、每章对应的源材料 |
+| `docs/outline.md` | 详细大纲、写作规则、章节写法、验收标准、每章对应的源材料 |
+| `examples/`、`tests/` | 能在 CPU 上运行的代码示例及其 pytest 测试 |
 | `assets/` | 样式与图片（`assets/images/`） |
-| `scripts/` | 画图等辅助脚本 |
+| `scripts/` | `check_book.py` 审核门禁、画图等辅助脚本 |
 | `build.py` | Pandoc 构建脚本 |
 | `CHANGELOG.md` | 中文更新日志 |
