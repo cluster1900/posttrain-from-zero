@@ -40,7 +40,7 @@ def main():
         for block in teaching_blocks(text):
             subprocess.run([sys.executable, '-c', block], check=True, cwd=root)
             count += 1
-    print(f'PASS HTML/EPUB structure, {len(refs)} embedded figures, {count} teaching Python code blocks; source excerpts not executed')
+    print(f'PASS HTML/EPUB structure, {len(refs)} embedded SVG figures, {count} teaching Python code blocks; source excerpts not executed')
 
 if __name__ == '__main__':
     main()

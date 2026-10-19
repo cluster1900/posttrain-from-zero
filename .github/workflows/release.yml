@@ -1,6 +1,6 @@
-name: Release EPUB and web bundle
+name: Release EPUB, PDF and web bundle
 
-# 推送 vX.Y.Z 标签时，构建并把 EPUB、离线网页包附到同名 Release。
+# 推送 vX.Y.Z 标签时，构建并把 EPUB、PDF、离线网页包和 SHA256SUMS.txt 附到同名 Release。
 # Release 说明（中文更新日志）由维护者在创建 Release 时填写。
 on:
   push:
@@ -18,25 +18,40 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-24.04
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: "1"
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - name: Install pandoc
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install pandoc, fonts, poppler, epubcheck
         run: |
+          set -euo pipefail
           curl -fsSL -o /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/3.5/pandoc-3.5-1-amd64.deb
           sudo dpkg -i /tmp/pandoc.deb
-      - name: Build
+          sudo apt-get update -q
+          sudo apt-get install -y -q fonts-noto-cjk fonts-dejavu-core poppler-utils epubcheck >/dev/null
+          echo "CHROME_PATH=$(command -v google-chrome || command -v chromium)" >> "$GITHUB_ENV"
+      - run: npm ci --no-audit --no-fund
+      - name: Build and check
         run: |
+          set -euo pipefail
           python3 scripts/check_book.py
           python3 build.py
-          (cd dist && zip -qr ../posttrain-from-zero-web.zip . -x posttrain-from-zero.epub)
-          cp dist/posttrain-from-zero.epub .
-          sha256sum posttrain-from-zero.epub posttrain-from-zero-web.zip > SHA256SUMS.txt
+          python3 scripts/check_outputs.py dist --expect "后训练从 0 到 1"
+          epubcheck dist/posttrain-from-zero.epub
+          (cd dist && zip -qr ../posttrain-from-zero-web.zip .)
+          cp dist/posttrain-from-zero.epub dist/posttrain-from-zero.pdf .
+          sha256sum posttrain-from-zero.epub posttrain-from-zero.pdf posttrain-from-zero-web.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
       - name: Attach to release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes "见 CHANGELOG.md"
-          gh release upload "$TAG" posttrain-from-zero.epub posttrain-from-zero-web.zip SHA256SUMS.txt --clobber
+          gh release upload "$TAG" posttrain-from-zero.epub posttrain-from-zero.pdf posttrain-from-zero-web.zip SHA256SUMS.txt --clobber
