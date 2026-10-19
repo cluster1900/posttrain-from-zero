@@ -43,7 +43,7 @@
 - 本项目路线（Apexo 后训练流程）：公开数据冻结 → LoRA SFT 预热 → outcome-only DPPO（Apexo RL）→ Harbor + Terminal-Bench 2.0 评测；作者的设计取舍（单卡、LoRA、lr 等，相对常见多机方案）。
 - 素材：`AGENTS.md`、`docs/apexo/01_architecture.md`、`docs/apexo/09_custom_training_design.md`（§1.3 设计取舍表）、`configs/rl/qwen35_2b.yaml` 注释、`docs/apexo/README.md` 流程图。
 - 方法来源（作者 2026-10-19 确认）：Apexo 是作者在阅读多方公开论文与开源实现后自行设计和修改的流程。
-- 待作者确认：为什么选 Qwen3.5 Base 而不是 Instruct、为什么是 2B/4B。
+- 模型规模（作者 2026-10-19 确认）：选 Qwen3.5 2B 是因为它**足够小**。4B 也试过：完成了 SFT，之后因成本太高停止（见第 12 章）。作者没有说明为什么选 Base 而不选 Instruct，书里只写"用的是官方 Base 模型"，不要替作者补理由。
 
 ### 第 3 章 第一版为什么不能用：从 v1 到 v2（10-10）
 
@@ -85,7 +85,7 @@
 - 镜像构建：causal-conv1d 源码编译卡住被取消（R47）。
 - 素材：`result/round3/`–`result/round9/` 各 README、`docs/apexo/07_gcp_colab_a100_training_plan.md`、`docs/apexo/10_agent_platform_plan.md`、`result/round10/scripts/preflight_fit.py`、`result/round8/costs-and-retention.json`。
 - 花费（作者 2026-10-19 确认）：全项目总花费约 **200 美元，全部是 Google Cloud**。仓库没有账单明细，书里只写这个总数，不要拆分到各轮。
-- 待作者确认：为什么放弃 Daytona。
+- 为什么去掉 Daytona（作者 2026-10-19 确认）：Google Cloud 上已经有能承载沙箱的 VM，不需要再用 Daytona。
 
 ### 第 8 章 RL 原理与实现：DPPO 怎么在一张卡上跑
 
@@ -127,7 +127,7 @@
 - 只做了 8 步 RL、2B 单卡，结论边界；本项目不和任何外部报告的数字做比较。
 - 4B 为什么停（作者 2026-10-19 确认）：**成本太高**。4B 完成了 SFT（第 6 章），之后没有继续 RL 和全量评测。
 - 素材：`result/round10/conclusion.md`、`result/round10/harbor-*/`、§3。
-- 待作者确认：如果重来，最想改什么。
+- 如果重来（作者 2026-10-19 回答）：大概会直接沿用现有方法，只是预算会更多。
 
 ### 第 13 章 工程纪律：让这个项目可复盘的那些规矩
 
@@ -144,13 +144,21 @@
 - D. 术语表。
 - E. 致谢与第三方许可：公开数据集（ODC-BY 1.0）、评测 harness（Apache-2.0）、Harbor / Terminal-Bench 2.0、Qwen 基座模型；按源仓库 `THIRD_PARTY.md` 署名。
 
-## 已知记录缺口（写到相关章节时问作者）
+## 已知记录缺口
 
-1. 为什么选 Qwen3.5 Base、2B/4B；为什么放弃 Daytona。
-2. RL 评测 Attempt 1 的原始台账和日志没有找到。Drive 上只留下一份较早的编排状态快照（316 trials 时点），已收进源仓库 `result/round10/harbor-rl-2b/attempt1-orchestrator-status-drive.json`。完整日志已被 Attempt 2 覆盖，书里照此写，不要补细节。
-3. 如果重来，最想改什么。
+无待作者回答的问题（截至 2026-10-19）。
 
-已解决（作者 2026-10-19 回答）：实际花费（约 200 美元，全部是 Google Cloud）；4B 停止原因（成本太高）；方法归属（Apexo，作者自行设计）；门禁阈值（Apexo 阈值，见第 10 章）；源仓库引用方式（保持私有，用纯文本写路径和提交号）。
+已解决（作者 2026-10-19 回答）：
+- 实际花费：约 200 美元，全部是 Google Cloud。
+- 4B 停止原因：成本太高。
+- 方法归属：Apexo，作者自行设计。
+- 门禁阈值：Apexo 阈值，见第 10 章。
+- 源仓库引用方式：保持私有，用纯文本写路径和提交号。
+- 为什么去掉 Daytona：GCP 上已有能承载沙箱的 VM。
+- 为什么选 2B：足够小。
+- 如果重来：沿用现有方法，加大预算。
+
+记录说明（不是待问问题）：RL 评测 Attempt 1 的原始台账和日志已被 Attempt 2 覆盖。Drive 上只留下一份较早的编排状态快照（316 trials 时点），已收进源仓库 `result/round10/harbor-rl-2b/attempt1-orchestrator-status-drive.json`。书里照此写，不要补细节。
 
 ## 交付批次
 
