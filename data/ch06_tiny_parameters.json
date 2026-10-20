@@ -1,0 +1,280 @@
+{
+  "kind": "reader_experiment_not_project_metrics",
+  "model_class": "Qwen3_5ForCausalLM",
+  "meta_only": false,
+  "base_unique_parameters": 15975800,
+  "embedding_unique_parameters": 15892480,
+  "lora_trainable_parameters": 143872,
+  "wrapped_unique_parameters": 16119672,
+  "trainable_fraction": 0.008925243640193176,
+  "target_instances": [
+    {
+      "name": "model.layers.0.linear_attn.out_proj",
+      "in": 64,
+      "out": 64,
+      "lora_parameters": 8192
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_qkv",
+      "in": 64,
+      "out": 128,
+      "lora_parameters": 12288
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_z",
+      "in": 64,
+      "out": 64,
+      "lora_parameters": 8192
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_b",
+      "in": 64,
+      "out": 4,
+      "lora_parameters": 4352
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_a",
+      "in": 64,
+      "out": 4,
+      "lora_parameters": 4352
+    },
+    {
+      "name": "model.layers.0.mlp.gate_proj",
+      "in": 64,
+      "out": 128,
+      "lora_parameters": 12288
+    },
+    {
+      "name": "model.layers.0.mlp.up_proj",
+      "in": 64,
+      "out": 128,
+      "lora_parameters": 12288
+    },
+    {
+      "name": "model.layers.0.mlp.down_proj",
+      "in": 128,
+      "out": 64,
+      "lora_parameters": 12288
+    },
+    {
+      "name": "model.layers.1.self_attn.q_proj",
+      "in": 64,
+      "out": 128,
+      "lora_parameters": 12288
+    },
+    {
+      "name": "model.layers.1.self_attn.k_proj",
+      "in": 64,
+      "out": 32,
+      "lora_parameters": 6144
+    },
+    {
+      "name": "model.layers.1.self_attn.v_proj",
+      "in": 64,
+      "out": 32,
+      "lora_parameters": 6144
+    },
+    {
+      "name": "model.layers.1.self_attn.o_proj",
+      "in": 64,
+      "out": 64,
+      "lora_parameters": 8192
+    },
+    {
+      "name": "model.layers.1.mlp.gate_proj",
+      "in": 64,
+      "out": 128,
+      "lora_parameters": 12288
+    },
+    {
+      "name": "model.layers.1.mlp.up_proj",
+      "in": 64,
+      "out": 128,
+      "lora_parameters": 12288
+    },
+    {
+      "name": "model.layers.1.mlp.down_proj",
+      "in": 128,
+      "out": 64,
+      "lora_parameters": 12288
+    }
+  ],
+  "module_types": {
+    "Conv1d": 1,
+    "Embedding": 1,
+    "Linear": 16,
+    "ModuleList": 1,
+    "Qwen3_5Attention": 1,
+    "Qwen3_5DecoderLayer": 2,
+    "Qwen3_5GatedDeltaNet": 1,
+    "Qwen3_5MLP": 2,
+    "Qwen3_5RMSNorm": 7,
+    "Qwen3_5RMSNormGated": 1,
+    "Qwen3_5TextModel": 1,
+    "Qwen3_5TextRotaryEmbedding": 1,
+    "SiLUActivation": 3
+  },
+  "module_tree": [
+    {
+      "name": "model",
+      "type": "Qwen3_5TextModel"
+    },
+    {
+      "name": "model.embed_tokens",
+      "type": "Embedding"
+    },
+    {
+      "name": "model.layers",
+      "type": "ModuleList"
+    },
+    {
+      "name": "model.layers.0",
+      "type": "Qwen3_5DecoderLayer"
+    },
+    {
+      "name": "model.layers.0.linear_attn",
+      "type": "Qwen3_5GatedDeltaNet"
+    },
+    {
+      "name": "model.layers.0.linear_attn.act",
+      "type": "SiLUActivation"
+    },
+    {
+      "name": "model.layers.0.linear_attn.conv1d",
+      "type": "Conv1d"
+    },
+    {
+      "name": "model.layers.0.linear_attn.norm",
+      "type": "Qwen3_5RMSNormGated"
+    },
+    {
+      "name": "model.layers.0.linear_attn.out_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_qkv",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_z",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_b",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.linear_attn.in_proj_a",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.mlp",
+      "type": "Qwen3_5MLP"
+    },
+    {
+      "name": "model.layers.0.mlp.gate_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.mlp.up_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.mlp.down_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.0.mlp.act_fn",
+      "type": "SiLUActivation"
+    },
+    {
+      "name": "model.layers.0.input_layernorm",
+      "type": "Qwen3_5RMSNorm"
+    },
+    {
+      "name": "model.layers.0.post_attention_layernorm",
+      "type": "Qwen3_5RMSNorm"
+    },
+    {
+      "name": "model.layers.1",
+      "type": "Qwen3_5DecoderLayer"
+    },
+    {
+      "name": "model.layers.1.self_attn",
+      "type": "Qwen3_5Attention"
+    },
+    {
+      "name": "model.layers.1.self_attn.q_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.1.self_attn.k_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.1.self_attn.v_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.1.self_attn.o_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.1.self_attn.q_norm",
+      "type": "Qwen3_5RMSNorm"
+    },
+    {
+      "name": "model.layers.1.self_attn.k_norm",
+      "type": "Qwen3_5RMSNorm"
+    },
+    {
+      "name": "model.layers.1.mlp",
+      "type": "Qwen3_5MLP"
+    },
+    {
+      "name": "model.layers.1.mlp.gate_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.1.mlp.up_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.1.mlp.down_proj",
+      "type": "Linear"
+    },
+    {
+      "name": "model.layers.1.mlp.act_fn",
+      "type": "SiLUActivation"
+    },
+    {
+      "name": "model.layers.1.input_layernorm",
+      "type": "Qwen3_5RMSNorm"
+    },
+    {
+      "name": "model.layers.1.post_attention_layernorm",
+      "type": "Qwen3_5RMSNorm"
+    },
+    {
+      "name": "model.norm",
+      "type": "Qwen3_5RMSNorm"
+    },
+    {
+      "name": "model.rotary_emb",
+      "type": "Qwen3_5TextRotaryEmbedding"
+    },
+    {
+      "name": "lm_head",
+      "type": "Linear"
+    }
+  ],
+  "rank": 64,
+  "alpha": 64,
+  "dropout": 0.0,
+  "layer_types": [
+    "linear_attention",
+    "full_attention"
+  ],
+  "vocab_size": 248320,
+  "hidden_size": 64
+}

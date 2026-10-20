@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="310" viewBox="0 0 1200 310" role="img">
+<title>训练恢复与产物交接：两份不同的合同</title>
+<rect width="1200" height="310" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">训练恢复与产物交接：两份不同的合同</text>
+<rect x="40" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="162" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">本地更新</text>
+<text x="162" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">模型与优化器状态</text>
+<text x="162" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">步数、随机状态、数据序</text>
+<path d="M287 157 H323" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="332" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="454" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">完整 checkpoint</text>
+<text x="454" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">写入后标记完成</text>
+<text x="454" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">未完整目录不作为候选</text>
+<path d="M579 157 H615" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="624" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="746" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">复制与读回</text>
+<text x="746" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">大文件是否真的落盘</text>
+<text x="746" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">逐项 SHA-256 核验</text>
+<path d="M871 157 H907" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="916" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="1038" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">接收端交接</text>
+<text x="1038" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">版本／配置／数据一致</text>
+<text x="1038" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">adapter 完整 ≠ 质量通过</text>
+<text x="40" y="270" dy="0.35em" font-size="18" text-anchor="start" fill="#18243b" font-weight="normal">结构示意。完成标记不替代跨存储读回核验；没有保存的日志不靠推测补齐。</text>
+</g></svg>
