@@ -1,0 +1,24 @@
+{
+  "source": "result/round8/costs-and-retention.json",
+  "source_commit": "ca57456",
+  "unit": "observed_wall_seconds",
+  "billing_amount": null,
+  "builds": [
+    {
+      "attempt": 1,
+      "status": "FAILURE",
+      "observed_wall_seconds": 255.836
+    },
+    {
+      "attempt": 2,
+      "status": "CANCELLED",
+      "observed_wall_seconds": 1590.938
+    },
+    {
+      "attempt": 3,
+      "status": "SUCCESS",
+      "observed_wall_seconds": 1579.385
+    }
+  ],
+  "total_observed_build_wall_seconds": 3426.159
+}

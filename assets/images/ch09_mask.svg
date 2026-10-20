@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img">
+<title>DPPO 掩码：越界之后，还要看是否继续远离行为策略</title>
+<rect width="1200" height="470" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">DPPO 掩码：越界之后，还要看是否继续远离行为策略</text>
+<text x="40" y="83" dy="0.35em" font-size="21" text-anchor="start" fill="#18243b" font-weight="normal">先要求是响应位置；只有二元总变差 d &gt; 阈值时，下表的方向筛选才生效。</text>
+<text x="390" y="135" dy="0.35em" font-size="21" text-anchor="middle" fill="#18243b" font-weight="bold">当前概率高于行为概率</text>
+<text x="880" y="135" dy="0.35em" font-size="21" text-anchor="middle" fill="#18243b" font-weight="bold">当前概率低于行为概率</text>
+<text x="40" y="220" dy="0.35em" font-size="23" text-anchor="start" fill="#18243b" font-weight="bold">正优势</text>
+<text x="40" y="330" dy="0.35em" font-size="23" text-anchor="start" fill="#18243b" font-weight="bold">负优势</text>
+<rect x="165" y="177" width="450" height="85" rx="10" fill="#fcecea" stroke="#a0b2cd"/>
+<text x="390" y="208" dy="0.35em" font-size="24" text-anchor="middle" fill="#18243b" font-weight="bold">屏蔽</text>
+<text x="390" y="242" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">继续增大已偏高的概率</text>
+<rect x="655" y="177" width="450" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="880" y="208" dy="0.35em" font-size="24" text-anchor="middle" fill="#18243b" font-weight="bold">保留</text>
+<text x="880" y="242" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">增大概率，朝行为策略回归</text>
+<rect x="165" y="287" width="450" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="390" y="318" dy="0.35em" font-size="24" text-anchor="middle" fill="#18243b" font-weight="bold">保留</text>
+<text x="390" y="352" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">减小概率，朝行为策略回归</text>
+<rect x="655" y="287" width="450" height="85" rx="10" fill="#fcecea" stroke="#a0b2cd"/>
+<text x="880" y="318" dy="0.35em" font-size="24" text-anchor="middle" fill="#18243b" font-weight="bold">屏蔽</text>
+<text x="880" y="352" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">继续减小已偏低的概率</text>
+<text x="40" y="420" dy="0.35em" font-size="20" text-anchor="start" fill="#18243b" font-weight="normal">原理示意。d 等于阈值时保留；零优势贡献为零。分母仍是全部响应 token 数。</text>
+</g></svg>
