@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="550" viewBox="0 0 1200 550" role="img">
+<title>评测先验输入，再判质量：缺证据不能补一个成功</title>
+<rect width="1200" height="550" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" fill="#18243b">
+<text x="36" y="38" dy="0.35em" font-size="27" text-anchor="start" font-weight="bold" fill="#18243b">评测先验输入，再判质量：缺证据不能补一个成功</text>
+<rect x="36" y="166" width="220" height="120" rx="10" fill="#ffffff" stroke="#a0b2cd"/>
+<text x="146.0" y="196" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">读取真实结果</text>
+<text x="146.0" y="232" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">检查输入完整性</text>
+<rect x="414" y="76" width="300" height="115" rx="10" fill="#fff1ed" stroke="#a0b2cd"/>
+<text x="564.0" y="106" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">没有 trial</text>
+<text x="564.0" y="142" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">退出码 2</text>
+<text x="564.0" y="170" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">不写新报告</text>
+<path d="M260 226 H337 V133 H406" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="414" y="218" width="300" height="115" rx="10" fill="#fff1ed" stroke="#a0b2cd"/>
+<text x="564.0" y="248" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">证据不完整</text>
+<text x="564.0" y="284" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">timing 缺失或损坏</text>
+<text x="564.0" y="312" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">任务集合不一致</text>
+<path d="M260 226 H337 V275 H406" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="414" y="360" width="300" height="115" rx="10" fill="#e9f5f2" stroke="#a0b2cd"/>
+<text x="564.0" y="390" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">证据齐全且可比</text>
+<text x="564.0" y="426" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">继续计算指标</text>
+<text x="564.0" y="454" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">进入正式质量门禁</text>
+<path d="M260 226 H337 V417 H406" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="816" y="218" width="348" height="150" rx="10" fill="#fff1ed" stroke="#a0b2cd"/>
+<text x="990.0" y="248" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">禁止的捷径</text>
+<text x="990.0" y="284" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">无日志 → 造模拟样本</text>
+<text x="990.0" y="312" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">有报告文件 → 当成 PASSED</text>
+<text x="36" y="518" dy="0.35em" font-size="19" text-anchor="start" font-weight="normal" fill="#18243b">教学完整性报告也明确标为 DEMO_ONLY；代码路径测试与真实评测报告不可混用。</text>
+</g></svg>

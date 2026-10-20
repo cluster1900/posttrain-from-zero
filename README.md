@@ -6,7 +6,7 @@
 
 一本基于真实项目的中文后训练书：在官方 `Qwen/Qwen3.5-2B-Base` 上，用作者自行设计的 **Apexo 后训练流程**完成数据冻结 → LoRA SFT → outcome-only RL（DPPO）→ Terminal-Bench 2.0 全量评测的完整过程。第 1 章讲 PyTorch 基础，之后按时间顺序讲每一步的做法、原因、踩过的坑、解决办法、耗时和调整。
 
-> **状态**：写作中。本批补齐前言与第 1 章 PyTorch 入门；其余章节见[详细大纲](docs/outline.md)，尚未交付。
+> **状态**：写作中。已交付前言与第 1 章 PyTorch 入门；本批继续第 2–4 章的路线、审核重写与数据冻结；其余章节见[详细大纲](docs/outline.md)，尚未交付。
 
 ## 构建
 
@@ -54,11 +54,13 @@ python -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl
 python -m pip install -r requirements-examples.txt
 python examples/ch01_pytorch.py all
 python -m pytest -q tests
-python scripts/draw_ch01.py
-python scripts/figures/ch00_metrics.py
+for f in scripts/draw_ch*.py; do python "$f"; done
+for f in scripts/figures/*.py; do python "$f"; done
 python scripts/check_book.py
 python3 build.py
 python scripts/check_built_book.py
 ```
 
 核验范围见 [批次 1 验证记录](docs/batch1-validation.md)；事实来源见 [批次 1 证据索引](docs/batch1-evidence.md)。
+
+第二批事实映射与验证边界见 [批次 2 证据索引](docs/batch2-evidence.md) 和 [批次 2 验证记录](docs/batch2-validation.md)。

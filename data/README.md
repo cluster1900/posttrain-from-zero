@@ -12,3 +12,7 @@
 生成命令：`python scripts/figures/ch00_metrics.py --out assets/images/plots`
 
 需要 matplotlib 和 Noto Sans CJK SC 字体。图表生成不访问私有源仓库或外部服务；四张原理示意图由 `scripts/draw_ch01.py` 单独生成。
+
+## ch04_retention.json
+
+来源：源仓库 `docs/apexo/03_data_plan.md` §3.3，提交 `ca57456`。仅复制报告中的成功轨迹总数 5,795 和三个离散长度阈值/保留条数：16,384/5,330、24,576/5,618、32,768/5,711。没有任务文本、镜像地址或私人资源标识。这里是源文档统计的摘录，不声称本书重新运行全量数据统计。`scripts/figures/ch04_retention.py` 绘制柱图，不插值或平滑。
