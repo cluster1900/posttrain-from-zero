@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img">
+<title>同卡串行：生成阶段与更新阶段分开占用 GPU</title>
+<rect width="1200" height="470" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" fill="#18243b">
+<text x="36" y="38" dy="0.35em" font-size="27" text-anchor="start" font-weight="bold" fill="#18243b">同卡串行：生成阶段与更新阶段分开占用 GPU</text>
+<rect x="36" y="93" width="535" height="255" rx="10" fill="#e9f5f2" stroke="#a0b2cd"/>
+<text x="303.5" y="123" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">生成阶段</text>
+<rect x="629" y="93" width="535" height="255" rx="10" fill="#eef0fb" stroke="#a0b2cd"/>
+<text x="896.5" y="123" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">更新阶段</text>
+<text x="65" y="166" dy="0.35em" font-size="23" text-anchor="start" font-weight="normal" fill="#18243b">GPU：vLLM 权重与 KV cache</text>
+<text x="65" y="211" dy="0.35em" font-size="23" text-anchor="start" font-weight="normal" fill="#18243b">CPU：HF 训练器、优化器状态</text>
+<text x="65" y="257" dy="0.35em" font-size="21" text-anchor="start" font-weight="normal" fill="#18243b">冻结输出头保留 CPU 主副本</text>
+<text x="65" y="307" dy="0.35em" font-size="21" text-anchor="start" font-weight="normal" fill="#18243b">输出：轨迹与行为 logprob</text>
+<text x="658" y="166" dy="0.35em" font-size="23" text-anchor="start" font-weight="normal" fill="#18243b">GPU：HF 训练器与本步计算</text>
+<text x="658" y="211" dy="0.35em" font-size="23" text-anchor="start" font-weight="normal" fill="#18243b">vLLM：进入 sleep 模式</text>
+<text x="658" y="257" dy="0.35em" font-size="21" text-anchor="start" font-weight="normal" fill="#18243b">冻结输出头按阶段搬入</text>
+<text x="658" y="307" dy="0.35em" font-size="21" text-anchor="start" font-weight="normal" fill="#18243b">输出：更新后的 LoRA 参数</text>
+<path d="M574 222 H620" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<path d="M895 352 V392 H303 V355" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<text x="599" y="422" dy="0.35em" font-size="21" text-anchor="middle" font-weight="normal" fill="#18243b">下一轮前：推送新权重、唤醒缓存、重置前缀缓存并检查同步</text>
+</g></svg>

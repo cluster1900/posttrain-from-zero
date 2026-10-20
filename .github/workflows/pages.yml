@@ -51,7 +51,7 @@ jobs:
           python3 -m pip install -q -r requirements-examples.txt
           python3 -m pip check
           python3 -m pytest -q tests
-          python3 scripts/draw_ch01.py
+          for f in scripts/draw_ch*.py; do python3 "$f"; done
           git diff --exit-code -- assets/images/
       - name: Figure scripts reproduce on CPU
         if: hashFiles('scripts/figures/*.py') != ''

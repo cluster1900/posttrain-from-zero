@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img">
+<title>终端智能体：行动、观测与最终验证</title>
+<rect width="1200" height="400" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">终端智能体：行动、观测与最终验证</text>
+<rect x="40" y="110" width="290" height="120" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="185" y="140" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="bold">任务与上下文</text>
+<text x="185" y="177" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">目标、历史行动</text>
+<text x="185" y="205" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">工具返回的观测</text>
+<rect x="390" y="110" width="290" height="120" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="535" y="140" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="bold">模型 / 策略</text>
+<text x="535" y="177" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">生成 bash 工具调用</text>
+<text x="535" y="205" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">不是直接改动文件</text>
+<rect x="740" y="110" width="290" height="120" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="885" y="140" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="bold">隔离环境</text>
+<text x="885" y="177" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">执行行动，改变状态</text>
+<text x="885" y="205" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">提交时触发 verifier</text>
+<path d="M333 167 H383" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M683 167 H733" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M885 233 V290 H535 V237" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="710" y="320" dy="0.35em" font-size="20" text-anchor="middle" fill="#18243b" font-weight="normal">观测返回模型，继续下一轮</text>
+<text x="40" y="365" dy="0.35em" font-size="20" text-anchor="start" fill="#18243b" font-weight="normal">流程示意：最终奖励来自 verifier，不是模型宣称自己成功。</text>
+</g></svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="475" viewBox="0 0 1200 475" role="img">
+<title>从占位流程到可追踪的更新链路</title>
+<rect width="1200" height="475" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" fill="#18243b">
+<text x="36" y="38" dy="0.35em" font-size="27" text-anchor="start" font-weight="bold" fill="#18243b">从占位流程到可追踪的更新链路</text>
+<text x="36" y="87" dy="0.35em" font-size="22" text-anchor="start" font-weight="bold" fill="#a34234">v1：有流程外观，缺少学习链路</text>
+<text x="36" y="263" dy="0.35em" font-size="22" text-anchor="start" font-weight="bold" fill="#087f83">v2：输出、奖励、概率与参数更新必须接通</text>
+<rect x="36" y="110" width="246" height="111" rx="10" fill="#fff1ed" stroke="#a0b2cd"/>
+<text x="159.0" y="140" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">载入模型</text>
+<text x="159.0" y="176" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">权重确实被加载</text>
+<path d="M284 165 H318" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="330" y="110" width="246" height="111" rx="10" fill="#fff1ed" stroke="#a0b2cd"/>
+<text x="453.0" y="140" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">固定回答</text>
+<text x="453.0" y="176" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">dummy_response</text>
+<path d="M578 165 H612" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="624" y="110" width="246" height="111" rx="10" fill="#fff1ed" stroke="#a0b2cd"/>
+<text x="747.0" y="140" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">打印奖励</text>
+<text x="747.0" y="176" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">没有损失与反传</text>
+<path d="M872 165 H906" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="918" y="110" width="246" height="111" rx="10" fill="#fff1ed" stroke="#a0b2cd"/>
+<text x="1041.0" y="140" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">保存完成产物</text>
+<text x="1041.0" y="176" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">不能证明发生了学习</text>
+<rect x="36" y="290" width="246" height="111" rx="10" fill="#e9f5f2" stroke="#a0b2cd"/>
+<text x="159.0" y="320" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">真实多轮生成</text>
+<text x="159.0" y="356" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">保存行为 logprob</text>
+<path d="M284 345 H318" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="330" y="290" width="246" height="111" rx="10" fill="#e9f5f2" stroke="#a0b2cd"/>
+<text x="453.0" y="320" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">沙箱与验证器</text>
+<text x="453.0" y="356" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">真实结果奖励</text>
+<path d="M578 345 H612" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="624" y="290" width="246" height="111" rx="10" fill="#e9f5f2" stroke="#a0b2cd"/>
+<text x="747.0" y="320" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">DPPO 与反传</text>
+<text x="747.0" y="356" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">更新 LoRA 参数</text>
+<path d="M872 345 H906" fill="none" stroke="#52657e" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="918" y="290" width="246" height="111" rx="10" fill="#e9f5f2" stroke="#a0b2cd"/>
+<text x="1041.0" y="320" dy="0.35em" font-size="22" text-anchor="middle" font-weight="bold" fill="#18243b">重新同步与评测</text>
+<text x="1041.0" y="356" dy="0.35em" font-size="18" text-anchor="middle" font-weight="normal" fill="#18243b">检验链路与效果</text>
+<text x="36" y="444" dy="0.35em" font-size="19" text-anchor="start" font-weight="normal" fill="#18243b">结构示意。v2 代码具备链路，不代表当时已经完成 GPU、真实沙箱或模型质量验收。</text>
+</g></svg>

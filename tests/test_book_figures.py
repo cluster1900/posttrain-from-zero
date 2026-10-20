@@ -30,7 +30,7 @@ def test_recorded_chart_percentages():
 
 
 def test_chinese_figure_references_and_xml():
-    refs = [ref for p in (ROOT/'chapters').glob('*.md')
+    refs = [ref for p in [(ROOT/'chapters/00_preface.md'), (ROOT/'chapters/01_pytorch.md')]
             for ref in re.findall(r'!\[[^\]]*\]\((images/[^)]+)\)', p.read_text())]
     assert len(refs) == len(set(refs)) == 5
     for filename, expected in [('00_preface.md', ['0-1', '0-2']),

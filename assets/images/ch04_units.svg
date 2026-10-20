@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img">
+<title>任务、轨迹与监督轮：三个计量层次</title>
+<rect width="1200" height="380" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">任务、轨迹与监督轮：三个计量层次</text>
+<rect x="40" y="110" width="340" height="155" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="210" y="145" dy="0.35em" font-size="25" text-anchor="middle" fill="#18243b" font-weight="bold">任务</text>
+<text x="210" y="195" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">决定 train / held-out 归属</text>
+<text x="210" y="230" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">一份任务可以有多次尝试</text>
+<rect x="430" y="110" width="340" height="155" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="600" y="145" dy="0.35em" font-size="25" text-anchor="middle" fill="#18243b" font-weight="bold">轨迹</text>
+<text x="600" y="195" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">一次尝试的完整交互</text>
+<text x="600" y="230" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">成功轨迹也可能含格式错误轮</text>
+<rect x="820" y="110" width="340" height="155" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="990" y="145" dy="0.35em" font-size="25" text-anchor="middle" fill="#18243b" font-weight="bold">assistant 轮</text>
+<text x="990" y="195" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">决定哪些 token 计 loss</text>
+<text x="990" y="230" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">不训练某轮 ≠ 删除整条轨迹</text>
+<path d="M383 185 H423" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M773 185 H813" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="40" y="325" dy="0.35em" font-size="21" text-anchor="start" fill="#18243b" font-weight="normal">层级示意，不表示真实样本比例；任务数、轨迹数、轮数不能相加。</text>
+</g></svg>
