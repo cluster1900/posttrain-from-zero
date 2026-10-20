@@ -1,0 +1,23 @@
+{
+  "source": {
+    "repository": "cluster1900/qwen-posttrain",
+    "commit": "ca57456",
+    "path": "result/round2/results/rl_2b_24k_metrics.jsonl",
+    "fields": [
+      "step",
+      "rollout/reward_mean",
+      "groups/useful_groups",
+      "groups/groups",
+      "train/kept_frac",
+      "sync/logprob_abs_diff",
+      "time/gen_s",
+      "time/train_s",
+      "time/step_s"
+    ]
+  },
+  "records": [
+    {"step": 1, "reward_mean": 0.5, "useful_groups": 2, "groups": 2, "kept_frac": 0.9994359842075579, "sync_logprob_abs_diff": 0.012010817999368185, "gen_s": 337.3, "train_s": 6.0, "step_s": 343.6},
+    {"step": 2, "reward_mean": 0.5, "useful_groups": 2, "groups": 2, "kept_frac": 1.0, "sync_logprob_abs_diff": 0.01578219824059065, "gen_s": 33.4, "train_s": 6.1, "step_s": 39.8},
+    {"step": 3, "reward_mean": 0.5, "useful_groups": 2, "groups": 2, "kept_frac": 1.0, "sync_logprob_abs_diff": 0.013485676901681082, "gen_s": 28.4, "train_s": 5.8, "step_s": 34.4}
+  ]
+}
