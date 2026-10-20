@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="390" viewBox="0 0 1200 390" role="img">
+<title>LoRA 并行路径：冻结基座与低秩增量相加</title>
+<rect width="1200" height="390" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">LoRA 并行路径：冻结基座与低秩增量相加</text>
+<rect x="40" y="160" width="150" height="70" rx="10" fill="white" stroke="#a0b2cd"/>
+<rect x="330" y="85" width="365" height="85" rx="10" fill="white" stroke="#a0b2cd"/>
+<rect x="330" y="235" width="365" height="85" rx="10" fill="white" stroke="#a0b2cd"/>
+<rect x="1010" y="160" width="150" height="70" rx="10" fill="white" stroke="#a0b2cd"/>
+<circle cx="880" cy="195" r="32" fill="white" stroke="#a0b2cd"/>
+<text x="115" y="195" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="normal">输入 x</text>
+<text x="512" y="111" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">冻结的基座权重</text>
+<text x="512" y="144" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="normal">W x</text>
+<text x="512" y="260" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">可训练的低秩增量</text>
+<text x="512" y="293" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="normal">(α / r) B A x</text>
+<text x="880" y="195" dy="0.35em" font-size="32" text-anchor="middle" fill="#18243b" font-weight="normal">+</text>
+<text x="1085" y="195" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="normal">输出 y</text>
+<path d="M190 195 H250 V127 H325" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M250 195 V277 H325" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M695 127 H770 V175 L845 187" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M695 277 H770 V215 L845 203" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M912 195 H1005" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="40" y="357" dy="0.35em" font-size="19" text-anchor="start" fill="#18243b" font-weight="normal">原理示意，非项目测量。A 的形状：r × d_in；B 的形状：d_out × r。基座权重保持冻结。</text>
+</g></svg>

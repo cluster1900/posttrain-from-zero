@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="590" viewBox="0 0 1200 590" role="img">
+<title>标签移位与损失掩码：位置 t 预测位置 t + 1</title>
+<rect width="1200" height="590" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">标签移位与损失掩码：位置 t 预测位置 t + 1</text>
+<text x="40" y="83" dy="0.35em" font-size="21" text-anchor="start" fill="#18243b" font-weight="normal">位置从 0 开始；原始 logits 序列长度为 4；标签为 [-100, -100, 2, 3]。</text>
+<text x="40" y="137" dy="0.35em" font-size="20" text-anchor="start" fill="#18243b" font-weight="normal">原始位置</text>
+<text x="310" y="137" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">0</text>
+<text x="545" y="137" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">1</text>
+<text x="780" y="137" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">2</text>
+<text x="1015" y="137" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">3</text>
+<text x="40" y="202" dy="0.35em" font-size="20" text-anchor="start" fill="#18243b" font-weight="normal">模型分数</text>
+<text x="40" y="329" dy="0.35em" font-size="20" text-anchor="start" fill="#18243b" font-weight="normal">原始标签</text>
+<rect x="224" y="173" width="172" height="58" rx="10" fill="#ffffff" stroke="#a0b2cd"/>
+<text x="310" y="202" dy="0.35em" font-size="21" text-anchor="middle" fill="#18243b" font-weight="normal">logits[0]</text>
+<rect x="224" y="300" width="172" height="58" rx="10" fill="#e8edf4" stroke="#a0b2cd"/>
+<text x="310" y="329" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="normal">-100</text>
+<path d="M342 235 L513 295" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="459" y="173" width="172" height="58" rx="10" fill="#ffffff" stroke="#a0b2cd"/>
+<text x="545" y="202" dy="0.35em" font-size="21" text-anchor="middle" fill="#18243b" font-weight="normal">logits[1]</text>
+<rect x="459" y="300" width="172" height="58" rx="10" fill="#e8edf4" stroke="#a0b2cd"/>
+<text x="545" y="329" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="normal">-100</text>
+<path d="M577 235 L748 295" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="694" y="173" width="172" height="58" rx="10" fill="#ffffff" stroke="#a0b2cd"/>
+<text x="780" y="202" dy="0.35em" font-size="21" text-anchor="middle" fill="#18243b" font-weight="normal">logits[2]</text>
+<rect x="694" y="300" width="172" height="58" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="780" y="329" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="normal">2</text>
+<path d="M812 235 L983 295" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="929" y="173" width="172" height="58" rx="10" fill="#e8edf4" stroke="#a0b2cd"/>
+<text x="1015" y="202" dy="0.35em" font-size="21" text-anchor="middle" fill="#18243b" font-weight="normal">logits[3]</text>
+<rect x="929" y="300" width="172" height="58" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="1015" y="329" dy="0.35em" font-size="23" text-anchor="middle" fill="#18243b" font-weight="normal">3</text>
+<text x="460" y="245" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">忽略目标</text>
+<text x="700" y="245" dy="0.35em" font-size="17" text-anchor="middle" fill="#087f83" font-weight="normal">监督目标</text>
+<text x="935" y="245" dy="0.35em" font-size="17" text-anchor="middle" fill="#087f83" font-weight="normal">监督目标</text>
+<text x="1015" y="400" dy="0.35em" font-size="18" text-anchor="middle" fill="#18243b" font-weight="normal">末位分数不参与配对</text>
+<text x="310" y="400" dy="0.35em" font-size="18" text-anchor="middle" fill="#18243b" font-weight="normal">首位标签移位后移除</text>
+<rect x="40" y="436" width="1120" height="76" rx="10" fill="#ffffff" stroke="#a0b2cd"/>
+<text x="62" y="460" dy="0.35em" font-size="21" text-anchor="start" fill="#18243b" font-weight="normal">实际配对：logits[0:3]  ↔  labels[1:4] = [-100, 2, 3]；只有 2 个目标计入损失。</text>
+<text x="62" y="492" dy="0.35em" font-size="19" text-anchor="start" fill="#18243b" font-weight="normal">位置 1 的分数预测标签 2；位置 2 的分数预测标签 3。不要在模型内部移位后再次移位。</text>
+<text x="40" y="552" dy="0.35em" font-size="19" text-anchor="start" fill="#18243b" font-weight="normal">原理示意，非项目测量。-100 只忽略对应目标的损失，不会删除输入上下文，也不是注意力掩码。</text>
+</g></svg>

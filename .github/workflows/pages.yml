@@ -40,12 +40,19 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Review gate (branding, secrets, chapter structure, figures)
         run: python3 scripts/check_book.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: CPU examples and tests
         if: hashFiles('examples/**/*.py') != ''
         run: |
           set -euo pipefail
+          python3 -m pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
           python3 -m pip install -q -r requirements-examples.txt
+          python3 -m pip check
           python3 -m pytest -q tests
+          python3 scripts/draw_ch01.py
+          git diff --exit-code -- assets/images/
       - name: Figure scripts reproduce on CPU
         if: hashFiles('scripts/figures/*.py') != ''
         run: |
@@ -53,6 +60,7 @@ jobs:
           python3 -m pip install -q -r requirements-examples.txt
           mkdir -p build/figcheck
           for f in scripts/figures/*.py; do echo "+ $f"; python3 "$f" --out build/figcheck; done
+          for f in build/figcheck/*; do cmp "$f" "assets/images/plots/$(basename "$f")"; done
       - name: Build self-test fixture (Chinese, mermaid, math, code, tables)
         run: |
           set -euo pipefail
@@ -61,6 +69,8 @@ jobs:
           epubcheck build/fixture/posttrain-from-zero.epub
       - name: Build HTML + EPUB + PDF
         run: python3 build.py
+      - name: Validate embedded assets and chapter code
+        run: python3 scripts/check_built_book.py
       - name: Check outputs
         run: |
           set -euo pipefail
