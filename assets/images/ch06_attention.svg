@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" role="img">
+<title>两种注意力路径：投影职责不同，共同连接 MLP</title>
+<rect width="1200" height="500" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">两种注意力路径：投影职责不同，共同连接 MLP</text>
+<text x="45" y="80" dy="0.35em" font-size="23" text-anchor="start" fill="#18243b" font-weight="bold">全注意力</text>
+<rect x="45" y="115" width="265" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="177" y="157" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">q / k / v 投影</text>
+<path d="M313 157 H337" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="345" y="115" width="265" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="477" y="157" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">注意力与门控</text>
+<path d="M613 157 H637" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="645" y="115" width="265" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="777" y="157" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">o 输出投影</text>
+<rect x="970" y="115" width="185" height="85" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="1062" y="145" dy="0.35em" font-size="20" text-anchor="middle" fill="#18243b" font-weight="normal">共同的 MLP</text>
+<text x="1062" y="175" dy="0.35em" font-size="16" text-anchor="middle" fill="#18243b" font-weight="normal">gate / up / down</text>
+<path d="M910 157 H963" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="45" y="245" dy="0.35em" font-size="23" text-anchor="start" fill="#18243b" font-weight="bold">Gated DeltaNet</text>
+<rect x="45" y="280" width="265" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="177" y="322" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">合并 qkv；z、a、b</text>
+<path d="M313 322 H337" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="345" y="280" width="265" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="477" y="322" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">卷积／状态更新／门控</text>
+<path d="M613 322 H637" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="645" y="280" width="265" height="85" rx="10" fill="#e5f3ee" stroke="#a0b2cd"/>
+<text x="777" y="322" dy="0.35em" font-size="19" text-anchor="middle" fill="#18243b" font-weight="normal">out 输出投影</text>
+<rect x="970" y="280" width="185" height="85" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="1062" y="310" dy="0.35em" font-size="20" text-anchor="middle" fill="#18243b" font-weight="normal">共同的 MLP</text>
+<text x="1062" y="340" dy="0.35em" font-size="16" text-anchor="middle" fill="#18243b" font-weight="normal">gate / up / down</text>
+<path d="M910 322 H963" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="45" y="418" dy="0.35em" font-size="21" text-anchor="start" fill="#18243b" font-weight="normal">a 参与衰减量，b 经 sigmoid 形成更新强度；不是同一个门。</text>
+<text x="45" y="460" dy="0.35em" font-size="19" text-anchor="start" fill="#18243b" font-weight="normal">职责示意，省略残差、归一化与详细张量运算；不作为完整架构方程。</text>
+</g></svg>

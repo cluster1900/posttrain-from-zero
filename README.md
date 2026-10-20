@@ -6,7 +6,7 @@
 
 一本基于真实项目的中文后训练书：在官方 `Qwen/Qwen3.5-2B-Base` 上，用作者自行设计的 **Apexo 后训练流程**完成数据冻结 → LoRA SFT → outcome-only RL（DPPO）→ Terminal-Bench 2.0 全量评测的完整过程。第 1 章讲 PyTorch 基础，之后按时间顺序讲每一步的做法、原因、踩过的坑、解决办法、耗时和调整。
 
-> **状态**：写作中。已交付前言与第 1 章 PyTorch 入门；本批继续第 2–4 章的路线、审核重写与数据冻结；其余章节见[详细大纲](docs/outline.md)，尚未交付。
+> **状态**：写作中。已交付前言与第 1–4 章；本批继续第 5–7 章的聊天模板、模型结构与 LoRA、SFT 训练；其余章节见[详细大纲](docs/outline.md)，尚未交付。
 
 ## 构建
 
@@ -19,7 +19,7 @@ python3 scripts/check_book.py                      # 审核门禁：命名、保
 # 先按下方“CPU 教学例子”安装依赖
 python3 -m pytest -q tests                        # CPU 示例测试
 python3 build.py                                   # 生成网页、EPUB、PDF（找不到 Chrome 时用 CHROME_PATH 指定）
-python3 scripts/check_built_book.py                 # 正文图片与六段独立教学代码
+python3 scripts/check_built_book.py                 # 正文图片与独立教学代码
 python3 scripts/check_outputs.py dist              # 检查三种产物：下载链接、EPUB 图片、PDF 字体嵌入与页码
 python3 build.py --src tests/build_fixture --out build/fixture   # 构建自检样章（中文、mermaid、公式、代码、表格）
 epubcheck dist/posttrain-from-zero.epub            # 可选：本地校验 EPUB（CI 必跑）
@@ -45,7 +45,7 @@ epubcheck dist/posttrain-from-zero.epub            # 可选：本地校验 EPUB�
 
 ## CPU 教学例子
 
-例子不下载模型、不创建云资源；教学环境与源项目 GPU 环境分开。
+默认教学例子不下载模型、不创建云资源；第 6 章另列的可选配置下载入口不属于离线默认路径；教学环境与源项目 GPU 环境分开。
 
 ```bash
 python3 -m venv .venv-examples
@@ -64,3 +64,5 @@ python scripts/check_built_book.py
 核验范围见 [批次 1 验证记录](docs/batch1-validation.md)；事实来源见 [批次 1 证据索引](docs/batch1-evidence.md)。
 
 第二批事实映射与验证边界见 [批次 2 证据索引](docs/batch2-evidence.md) 和 [批次 2 验证记录](docs/batch2-validation.md)。
+
+第三批事实映射与验证边界见 [批次 3 证据索引](docs/batch3-evidence.md) 和 [批次 3 验证记录](docs/batch3-validation.md)。

@@ -29,26 +29,35 @@ def test_recorded_chart_percentages():
     assert not (ROOT/'scripts/data/batch1_metrics.json').exists()
 
 
-def test_chinese_figure_references_and_xml():
-    refs = [ref for p in [(ROOT/'chapters/00_preface.md'), (ROOT/'chapters/01_pytorch.md')]
-            for ref in re.findall(r'!\[[^\]]*\]\((images/[^)]+)\)', p.read_text())]
-    assert len(refs) == len(set(refs)) == 5
-    for filename, expected in [('00_preface.md', ['0-1', '0-2']),
-                               ('01_pytorch.md', ['1-1', '1-2', '1-3'])]:
-        captions = re.findall(r'!\[图 (\d-\d)', (ROOT/'chapters'/filename).read_text())
-        assert captions == expected
-    svgs = [ref for ref in refs if ref.endswith('.svg')]
-    assert len(svgs) == 4
-    for ref in svgs:
-        text = (ROOT/'assets'/ref).read_text()
-        ET.fromstring(text)
-        assert 'Noto Sans CJK SC' in text
-        assert re.search(r'[\u4e00-\u9fff]', text)
-    assert 'images/plots/ch00_metrics.png' in refs
-    png = (ROOT/'assets/images/plots/ch00_metrics.png').read_bytes()
-    assert png[:8] == b'\x89PNG\r\n\x1a\n'
-    assert struct.unpack('>II', png[16:24]) == (1920, 1088)
-    assert not (ROOT/'assets/images/ch00_metrics.svg').exists()
+def test_all_chapter_figure_references_and_numbering():
+    all_refs = []
+    for chapter in sorted((ROOT / 'chapters').glob('*.md')):
+        number = int(chapter.name.split('_')[0])
+        if number == 99:
+            continue
+        text = chapter.read_text()
+        matches = re.findall(r'!\[图 (\d+-\d+)[^\]]*\]\((images/[^)]+)\)', text)
+        # Include the upstream Mermaid caption in source order, not a hardcoded total.
+        numbered = re.findall(r'(?:!\[图 |caption="图 )(\d+-\d+)', text)
+        minimum = 4 if number == 6 else 2
+        assert len(numbered) >= minimum, chapter.name
+        assert numbered == [f'{number}-{i + 1}' for i in range(len(numbered))], chapter.name
+        for _, ref in matches:
+            path = ROOT / 'assets' / ref
+            assert path.is_file(), ref
+            all_refs.append(ref)
+            if path.suffix == '.svg':
+                content = path.read_text()
+                ET.fromstring(content)
+                assert 'Noto Sans CJK SC' in content
+                assert re.search(r'[\u4e00-\u9fff]', content)
+            else:
+                png = path.read_bytes()
+                assert png[:8] == b'\x89PNG\r\n\x1a\n'
+                width, height = struct.unpack('>II', png[16:24])
+                assert width >= 1000 and height >= 500
+    assert len(all_refs) == len(set(all_refs))
+    assert not (ROOT / 'assets/images/ch00_metrics.svg').exists()
 
 
 def test_chart_generator_source_and_out(tmp_path):
