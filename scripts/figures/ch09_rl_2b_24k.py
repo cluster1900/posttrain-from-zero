@@ -1,39 +1,31 @@
 #!/usr/bin/env python3
-"""Render the chapter 9 RL metrics chart from the sanitized evidence file."""
+"""Render four chapter-9 plots from the sanitized real metrics JSON."""
 import json
 from pathlib import Path
-
+DATA_SOURCE = "cluster1900/qwen-posttrain@ca57456:result/round2/results/rl_2b_24k_metrics.jsonl"
 ROOT = Path(__file__).resolve().parents[2]
-data = json.loads((ROOT / "data/ch09_rl_2b_24k_metrics.json").read_text())
-rows = data["records"]
+DATA = ROOT / "data/ch09_rl_2b_24k_metrics.json"
 
-def series(key):
-    return ",".join(f"{r['step']}:{r[key]}" for r in rows)
+def chart(title, labels, values, out, ylabel):
+    vals=[float(v) for v in values]
+    lo=min(vals+[0.0]); hi=max(vals+[1.0]); span=max(hi-lo,1e-12)
+    pts=[]
+    for i,v in enumerate(vals):
+        x=70+620*i/max(1,len(vals)-1); y=250-150*(v-lo)/span
+        pts.append((x,y))
+    poly=" ".join(f"{x:.1f},{y:.1f}" for x,y in pts)
+    marks="".join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="#1565c0"/>' for x,y in pts)
+    labs="".join(f'<text x="{70+620*i/max(1,len(labels)-1):.1f}" y="272" font-size="11" text-anchor="middle">{str(l)}</text>' for i,l in enumerate(labels))
+    out.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320"><title>{title}</title><desc>{DATA_SOURCE}; {ylabel}</desc><rect width="100%" height="100%" fill="white"/><text x="24" y="24" font-size="16">{title}</text><line x1="70" y1="250" x2="690" y2="250" stroke="#333"/><line x1="70" y1="100" x2="70" y2="250" stroke="#333"/><polyline points="{poly}" fill="none" stroke="#1565c0" stroke-width="3"/>{marks}{labs}<text x="70" y="300" font-size="11">{ylabel}; min={lo:.6g} max={hi:.6g}</text></svg>\n')
 
-print("reward_mean", series("reward_mean"))
-print("kept_frac", series("kept_frac"))
-print("sync_logprob_abs_diff", series("sync_logprob_abs_diff"))
-print("gen_s", series("gen_s"))
-print("train_s", series("train_s"))
-print("step_s", series("step_s"))
+def main():
+    obj=json.loads(DATA.read_text()); rows=obj["records"]; labels=[r["step"] for r in rows]
+    out=ROOT/"assets/images/plots"; out.mkdir(parents=True,exist_ok=True)
+    chart("Reward and useful-group ratio",labels,[r["reward_mean"] for r in rows],out/"ch09_reward_useful.svg","reward_mean; useful_groups/groups=2/2 for each step")
+    chart("DPPO kept fraction",labels,[r["kept_frac"] for r in rows],out/"ch09_kept_frac.svg","train/kept_frac")
+    chart("Synchronization logprob drift",labels,[r["sync_logprob_abs_diff"] for r in rows],out/"ch09_sync_diff.svg","sync/logprob_abs_diff")
+    chart("Generation, training, and step time",labels,[r["step_s"] for r in rows],out/"ch09_time_split.svg","step_s; see JSON for gen_s and train_s")
+    print("wrote 4 data-derived SVG plots")
 
-if __name__ == "__main__":
-    # The repository keeps the plotted SVG as text so CI can regenerate/check it.
-    out = ROOT / "assets/images/plots/ch09_rl_2b_24k.svg"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("""<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" viewBox="0 0 760 320">
-  <title>RL 2B 24K evidence: step duration and sync drift</title>
-  <desc>Values are copied from data/ch09_rl_2b_24k_metrics.json and source commit ca57456.</desc>
-  <rect width="760" height="320" fill="white"/>
-  <text x="24" y="28" font-family="sans-serif" font-size="16">2B RL 24K evidence (source commit ca57456)</text>
-  <text x="24" y="56" font-family="sans-serif" font-size="12">step_s: 343.6, 39.8, 34.4 | gen_s: 337.3, 33.4, 28.4 | train_s: 6.0, 6.1, 5.8</text>
-  <text x="24" y="82" font-family="sans-serif" font-size="12">sync/logprob_abs_diff: 0.01201, 0.01578, 0.01349 | kept_frac: 0.99944, 1.0, 1.0</text>
-  <line x1="60" y1="250" x2="700" y2="250" stroke="#333"/>
-  <line x1="60" y1="100" x2="60" y2="250" stroke="#333"/>
-  <polyline points="140,110 380,232 620,235" fill="none" stroke="#1565c0" stroke-width="3"/>
-  <circle cx="140" cy="110" r="4" fill="#1565c0"/><circle cx="380" cy="232" r="4" fill="#1565c0"/><circle cx="620" cy="235" r="4" fill="#1565c0"/>
-  <text x="128" y="270" font-family="sans-serif" font-size="12">step 1</text><text x="368" y="270" font-family="sans-serif" font-size="12">step 2</text><text x="608" y="270" font-family="sans-serif" font-size="12">step 3</text>
-  <text x="76" y="118" font-family="sans-serif" font-size="11">343.6s</text><text x="386" y="224" font-family="sans-serif" font-size="11">39.8s</text><text x="626" y="227" font-family="sans-serif" font-size="11">34.4s</text>
-  <text x="60" y="300" font-family="sans-serif" font-size="11">This is an evidence plot, not a schematic or benchmark extrapolation.</text>
-</svg>
-""")
+if __name__=="__main__":
+    main()
