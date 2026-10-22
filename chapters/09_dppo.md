@@ -165,7 +165,7 @@ RL 的可信度取决于合同能否串起来：奖励属于这条轨迹，行�
 
 ## 9.8 可追溯运行证据（新增返修）
 
-本节保留前文的 DPPO 原理、配置表、坑与修复表和命令说明，只补充可核对的运行数据。数据快照来自 `cluster1900/qwen-posttrain@ca57456` 的 `result/round2/results/rl_2b_24k_metrics.jsonl`，筛选字段和三行样本存放在 `data/ch09_rl_2b_24k_metrics.json`。这些记录是 2B/24K、step 1–3，不外推为生产吞吐。
+本节保留前文的 DPPO 原理、配置表、坑与修复表和命令说明，只补充可核对的运行数据。数据快照来自 `固定实验提交 ca57456` 的 `result/round2/results/rl_2b_24k_metrics.jsonl`，筛选字段和三行样本存放在 `data/ch09_rl_2b_24k_metrics.json`。这些记录是 2B/24K、step 1–3，不外推为生产吞吐。
 
 [记录事实] 三个 step 的 reward_mean 为 0.5、0.5、0.5；useful_groups/groups 为 2/2、2/2、2/2；kept_frac 为 0.9994359842、1.0、1.0；sync/logprob_abs_diff 为 0.0120108180、0.0157821982、0.0134856769。绘图脚本从 JSON 读取这些字段，分别生成 reward/useful ratio、kept_frac、sync diff 三张曲线，以及 gen_s/train_s/step_s 时间拆分图。图注和数据文件都包含源路径、提交号与字段名。
 
