@@ -1,6 +1,6 @@
 {
   "source": {
-    "repository": "cluster1900/qwen-posttrain",
+    "source_label": "固定实验提交 ca57456",
     "commit": "ca57456",
     "path": "result/round2/results/rl_2b_24k_metrics.jsonl",
     "fields": [
