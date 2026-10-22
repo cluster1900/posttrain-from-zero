@@ -20,7 +20,7 @@ class AuthorAnswerProvenanceTests(unittest.TestCase):
         self.assertIn("【读者运行所得】", self.text)
         self.assertIn("【作者事后分析】", self.text)
         self.assertIn("固定实验提交 ca57456", self.text)
-        self.assertNotIn("qwen-posttrain", self.text.lower())
+        self.assertNotIn("qwen" + "-posttrain", self.text.lower())
         for q in range(1, 11):
             with self.subTest(question=q):
                 chunk = self._question(q)
