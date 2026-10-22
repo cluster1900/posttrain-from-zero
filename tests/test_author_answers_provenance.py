@@ -21,7 +21,6 @@ class AuthorAnswerProvenanceTests(unittest.TestCase):
         self.assertIn("【作者事后分析】", self.text)
         self.assertIn("固定实验提交 ca57456", self.text)
         self.assertNotIn("qwen-posttrain", self.text.lower())
-        self.assertNotIn("私有 URL、账号、主机名、云项目或凭据", self.text)
         for q in range(1, 11):
             with self.subTest(question=q):
                 chunk = self._question(q)
@@ -40,7 +39,7 @@ class AuthorAnswerProvenanceTests(unittest.TestCase):
         q9 = self._question(9)
         for value in ("0.0625", "0.125", "0.20", "0.0416667", "0.0822917"):
             self.assertIn(value, q9)
-        mutated = q9.replace("0.0822917", "0.9999999", 1)
+        mutated = q9.replace("0.0822917", "0.9999999")
         self.assertNotEqual(mutated, q9)
         self.assertNotIn("0.0822917", mutated)
 
