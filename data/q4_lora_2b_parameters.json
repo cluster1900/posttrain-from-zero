@@ -1,0 +1,114 @@
+{
+  "kind": "official_config_meta_lora_count",
+  "model": "Qwen/Qwen3.5-2B-Base",
+  "revision": "b1485b2fa6dfa1287294f269f5fb618e03d52d7c",
+  "rank": 64,
+  "alpha": 64,
+  "dropout": 0.0,
+  "target_modules": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "in_proj_qkv",
+    "in_proj_z",
+    "in_proj_a",
+    "in_proj_b",
+    "out_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "base_unique_parameters": 1881825088,
+  "lora_trainable_parameters": 67276800,
+  "wrapped_unique_parameters": 1949101888,
+  "trainable_fraction": 0.03451682049779021,
+  "n_target_instances": 186,
+  "by_leaf": {
+    "out_proj": {
+      "count": 18,
+      "lora_parameters": 4718592,
+      "shapes": {
+        "2048x2048": 18
+      }
+    },
+    "in_proj_qkv": {
+      "count": 18,
+      "lora_parameters": 9437184,
+      "shapes": {
+        "2048x6144": 18
+      }
+    },
+    "in_proj_z": {
+      "count": 18,
+      "lora_parameters": 4718592,
+      "shapes": {
+        "2048x2048": 18
+      }
+    },
+    "in_proj_b": {
+      "count": 18,
+      "lora_parameters": 2377728,
+      "shapes": {
+        "2048x16": 18
+      }
+    },
+    "in_proj_a": {
+      "count": 18,
+      "lora_parameters": 2377728,
+      "shapes": {
+        "2048x16": 18
+      }
+    },
+    "gate_proj": {
+      "count": 24,
+      "lora_parameters": 12582912,
+      "shapes": {
+        "2048x6144": 24
+      }
+    },
+    "up_proj": {
+      "count": 24,
+      "lora_parameters": 12582912,
+      "shapes": {
+        "2048x6144": 24
+      }
+    },
+    "down_proj": {
+      "count": 24,
+      "lora_parameters": 12582912,
+      "shapes": {
+        "6144x2048": 24
+      }
+    },
+    "q_proj": {
+      "count": 6,
+      "lora_parameters": 2359296,
+      "shapes": {
+        "2048x4096": 6
+      }
+    },
+    "k_proj": {
+      "count": 6,
+      "lora_parameters": 983040,
+      "shapes": {
+        "2048x512": 6
+      }
+    },
+    "v_proj": {
+      "count": 6,
+      "lora_parameters": 983040,
+      "shapes": {
+        "2048x512": 6
+      }
+    },
+    "o_proj": {
+      "count": 6,
+      "lora_parameters": 1572864,
+      "shapes": {
+        "2048x2048": 6
+      }
+    }
+  },
+  "method": "transformers==5.6.0 Qwen3_5ForCausalLM(text_config) on meta device + peft==0.18.1 LoRA; trainable == sum r*(in+out) over matched Linear leaves"
+}
