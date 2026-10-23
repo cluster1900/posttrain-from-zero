@@ -1,0 +1,98 @@
+{
+  "source": {
+    "commit": "ca57456",
+    "path": "result/round10/rl-2b/continue-final/metrics.jsonl"
+  },
+  "kl_max_gate": 0.2,
+  "no_tool_call_max": 0.1,
+  "steps": [
+    {
+      "step": 1,
+      "samples": 32,
+      "done_no_tool_call": 2,
+      "frac": 0.0625,
+      "kl_k3_vs_base": null,
+      "entropy": null,
+      "format_errors_mean": 0.15625
+    },
+    {
+      "step": 2,
+      "samples": 16,
+      "done_no_tool_call": 2,
+      "frac": 0.125,
+      "kl_k3_vs_base": null,
+      "entropy": null,
+      "format_errors_mean": 0.125
+    },
+    {
+      "step": 3,
+      "samples": 20,
+      "done_no_tool_call": 4,
+      "frac": 0.2,
+      "kl_k3_vs_base": 0.060662198049769696,
+      "entropy": 0.22409780968993934,
+      "format_errors_mean": 0.25
+    },
+    {
+      "step": 4,
+      "samples": 24,
+      "done_no_tool_call": 1,
+      "frac": 0.041666666666666664,
+      "kl_k3_vs_base": 0.08669367244012811,
+      "entropy": 0.42050788696754926,
+      "format_errors_mean": 0.08333333333333333
+    },
+    {
+      "step": 5,
+      "samples": 16,
+      "done_no_tool_call": 1,
+      "frac": 0.0625,
+      "kl_k3_vs_base": 0.1978531239748372,
+      "entropy": 0.4048626064827173,
+      "format_errors_mean": 0.1875
+    },
+    {
+      "step": 6,
+      "samples": 24,
+      "done_no_tool_call": 0,
+      "frac": 0.0,
+      "kl_k3_vs_base": null,
+      "entropy": null,
+      "format_errors_mean": 0.041666666666666664
+    },
+    {
+      "step": 7,
+      "samples": 24,
+      "done_no_tool_call": 3,
+      "frac": 0.125,
+      "kl_k3_vs_base": 0.12054954240072557,
+      "entropy": 0.19735688053921893,
+      "format_errors_mean": 0.125
+    },
+    {
+      "step": 8,
+      "samples": 24,
+      "done_no_tool_call": 1,
+      "frac": 0.041666666666666664,
+      "kl_k3_vs_base": 0.13313001430655297,
+      "entropy": 0.3875395980056593,
+      "format_errors_mean": 0.041666666666666664
+    }
+  ],
+  "recent_no_tool_call_frac": 0.08229166666666667,
+  "kl_at_step_5": 0.1978531239748372,
+  "display": {
+    "step_fracs_rounded": [
+      0.0625,
+      0.125,
+      0.2,
+      0.0416667,
+      0.0625,
+      0.0,
+      0.125,
+      0.0416667
+    ],
+    "average_rounded": 0.0822917,
+    "kl_step5_full": 0.1978531239748372
+  }
+}
