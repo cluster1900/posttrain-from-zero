@@ -1,0 +1,46 @@
+{
+  "source": {
+    "commit": "ca57456",
+    "result_json": "result/round5/sandbox_result.json",
+    "summary_json": "result/round5/summary.json",
+    "code_commit_at_probe": "14d6f6420e3240f10d9199d44576d548b60227e2"
+  },
+  "sandbox_create_s": 18.868,
+  "probe_process_exit_code": 1,
+  "timeout_http_status": 400,
+  "timeout_status": "API_REPORTS_KILLED_REQUIRES_BACKEND_MAPPING",
+  "probe_failure_reason": "Timeout was returned as HTTP 400 FAILED_PRECONDITION / DEADLINE_EXCEEDED; generic client propagated it. Parent cascade left ACTIVE template; explicitly deleted afterwards.",
+  "commands": [
+    {
+      "label": "identity",
+      "timeout_s": 15,
+      "elapsed_s": 2.649,
+      "returncode": 0
+    },
+    {
+      "label": "streams_exit",
+      "timeout_s": 15,
+      "elapsed_s": 5.368,
+      "returncode": 7
+    },
+    {
+      "label": "file_create",
+      "timeout_s": 15,
+      "elapsed_s": 2.012,
+      "returncode": 0
+    },
+    {
+      "label": "file_persists_shell_resets",
+      "timeout_s": 15,
+      "elapsed_s": 2.022,
+      "returncode": 0
+    },
+    {
+      "label": "task_path_permissions",
+      "timeout_s": 15,
+      "elapsed_s": 2.203,
+      "returncode": 0
+    }
+  ],
+  "cleanup_final_status": "PASS"
+}

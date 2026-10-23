@@ -24,3 +24,16 @@
 ## ch07_sft_metrics.json
 
 来源：`result/round2/results/formal_sft/metrics_2b.jsonl` 与 `metrics_4b.jsonl`，归档提交 `ca57456`。保留全部 702 / 688 行的原始八个数值字段，无删点、平滑、插值或补值，不包含任务文本或运行地址。`scripts/figures/ch07_sft_curves.py` 画原始 loss/梯度曲线；`scripts/figures/ch07_memory.py` 从原始日志取 allocated 峰值，不能解释为物理显存或最低硬件需求。正式运行代码为 `f5abb46`，归档 pin 与实跑 pin 分开记录。
+
+## 第 8 章构建时长
+
+`ch08_builds.json` 从 `result/round8/costs-and-retention.json`（提交 `ca57456`）只摘录三次状态、观测墙钟秒数与总和，去掉全部云资源标识与链接。金额为 null，不能把时长当账单时长。`scripts/figures/ch08_builds.py` 输出1920×1088像素，保留失败、取消与成功三次结果。
+
+## Coding batch4 真实指标
+
+| 文件 | 含义 |
+| --- | --- |
+| `ch08_builds.json` | round8 构建墙钟（已有） |
+| `ch09_rl_metrics.json` | round2 + round10 continue-final + rehearsal 指标 |
+| `ch10_sandbox_probe.json` | round5 沙箱探针耗时与超时摘要 |
+

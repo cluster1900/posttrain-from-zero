@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="310" viewBox="0 0 1200 310" role="img">
+<title>只读预检：配额必须与实际请求属于同一命名空间</title>
+<rect width="1200" height="310" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">只读预检：配额必须与实际请求属于同一命名空间</text>
+<rect x="40" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="162" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">实际资源配置</text>
+<text x="162" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">工作节点与沙箱节点</text>
+<text x="162" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">CPU、磁盘、GPU 分别求和</text>
+<path d="M287 157 H323" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="332" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="454" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">相应服务的配额</text>
+<text x="454" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">全局 CPU 与 SSD</text>
+<text x="454" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">Vertex 的调度类型指标</text>
+<path d="M579 157 H615" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="624" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="746" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">两次独立读回</text>
+<text x="746" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">限额、已用量、请求量</text>
+<text x="746" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">缺失和变化都需复核</text>
+<path d="M871 157 H907" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="916" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="1038" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">当前可申请</text>
+<text x="1038" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">不是预订或库存保证</text>
+<text x="1038" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">不自动创建任何资源</text>
+<text x="40" y="270" dy="0.35em" font-size="18" text-anchor="start" fill="#18243b" font-weight="normal">教学示意。普通 Compute GPU 配额不能直接替代 Vertex CustomJob 的准入指标。</text>
+</g></svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="310" viewBox="0 0 1200 310" role="img">
+<title>单张 GPU 的串行合同：生成阶段与更新阶段交替</title>
+<rect width="1200" height="310" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">单张 GPU 的串行合同：生成阶段与更新阶段交替</text>
+<rect x="40" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="162" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">训练器迁到 CPU</text>
+<text x="162" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">包括优化器状态</text>
+<text x="162" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">释放生成所需空间</text>
+<path d="M287 157 H323" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="332" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="454" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">唤醒并同步推理</text>
+<text x="454" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">权重 → 缓存 → 清前缀</text>
+<text x="454" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">校验推送张量数</text>
+<path d="M579 157 H615" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="624" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="746" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">生成与环境交互</text>
+<text x="746" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">保存行为 log-prob</text>
+<text x="746" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">结束后推理引擎休眠</text>
+<path d="M871 157 H907" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="916" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="1038" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">训练器回到 GPU</text>
+<text x="1038" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">重算概率检查同步</text>
+<text x="1038" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">分块损失与参数更新</text>
+<text x="40" y="270" dy="0.35em" font-size="18" text-anchor="start" fill="#18243b" font-weight="normal">所有权示意，非显存测量。下一次生成再推送更新后的权重，不能复用旧策略缓存。</text>
+</g></svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="310" viewBox="0 0 1200 310" role="img">
+<title>模型命令的执行边界：宿主控制与容器内行动分开</title>
+<rect width="1200" height="310" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">模型命令的执行边界：宿主控制与容器内行动分开</text>
+<rect x="40" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="162" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">可信控制器</text>
+<text x="162" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">资源创建、跟踪、回收</text>
+<text x="162" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">凭据不写入公开成果</text>
+<path d="M287 157 H323" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="332" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="454" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">GPU 训练工作节点</text>
+<text x="454" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">模型与推理引擎</text>
+<text x="454" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">仅发可信容器控制请求</text>
+<path d="M579 157 H615" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="624" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="746" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">临时 CPU 虚拟机</text>
+<text x="746" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">IAP SSH 到可信宿主</text>
+<text x="746" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">宿主不挂服务账号</text>
+<path d="M871 157 H907" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="916" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="1038" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">原任务容器</text>
+<text x="1038" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">模型命令只在此解释</text>
+<text x="1038" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">单任务文件，无云凭据</text>
+<text x="40" y="270" dy="0.35em" font-size="18" text-anchor="start" fill="#18243b" font-weight="normal">信任边界示意。容器共享内核；本图不是防逃逸、断网或完整安全审计的证明。</text>
+</g></svg>
