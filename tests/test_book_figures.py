@@ -39,7 +39,7 @@ def test_all_chapter_figure_references_and_numbering():
         matches = re.findall(r'!\[图 (\d+-\d+)[^\]]*\]\((images/[^)]+)\)', text)
         # Include the upstream Mermaid caption in source order, not a hardcoded total.
         numbered = re.findall(r'(?:!\[图 |caption="图 )(\d+-\d+)', text)
-        minimum = 4 if number == 6 else 2
+        minimum = 4 if number in (6, 8, 9, 10) else 2
         assert len(numbered) >= minimum, chapter.name
         assert numbered == [f'{number}-{i + 1}' for i in range(len(numbered))], chapter.name
         for _, ref in matches:
@@ -55,7 +55,12 @@ def test_all_chapter_figure_references_and_numbering():
                 png = path.read_bytes()
                 assert png[:8] == b'\x89PNG\r\n\x1a\n'
                 width, height = struct.unpack('>II', png[16:24])
-                assert width >= 1000 and height >= 500
+                expected_sizes = {
+                    'ch00_metrics.png': (1920, 1088), 'ch04_retention.png': (1600, 864),
+                    'ch06_parameters.png': (1760, 912), 'ch07_sft_curves.png': (1920, 1280),
+                    'ch07_memory.png': (1600, 880), 'ch08_builds.png': (1920, 1088),
+                }
+                assert (width, height) == expected_sizes[path.name], path.name
     assert len(all_refs) == len(set(all_refs))
     assert not (ROOT / 'assets/images/ch00_metrics.svg').exists()
 

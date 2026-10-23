@@ -6,7 +6,7 @@
 
 一本基于真实项目的中文后训练书：在官方 `Qwen/Qwen3.5-2B-Base` 上，用作者自行设计的 **Apexo 后训练流程**完成数据冻结 → LoRA SFT → outcome-only RL（DPPO）→ Terminal-Bench 2.0 全量评测的完整过程。第 1 章讲 PyTorch 基础，之后按时间顺序讲每一步的做法、原因、踩过的坑、解决办法、耗时和调整。
 
-> **状态**：写作中。已交付前言与第 1–4 章；本批继续第 5–7 章的聊天模板、模型结构与 LoRA、SFT 训练；其余章节见[详细大纲](docs/outline.md)，尚未交付。
+> **状态**：写作中。已交付前言与第 1–7 章；本批继续第 8–10 章的算力平台、单卡 DPPO 与沙箱执行合同；其余章节见[详细大纲](docs/outline.md)，尚未交付。
 
 ## 构建
 
@@ -66,3 +66,5 @@ python scripts/check_built_book.py
 第二批事实映射与验证边界见 [批次 2 证据索引](docs/batch2-evidence.md) 和 [批次 2 验证记录](docs/batch2-validation.md)。
 
 第三批事实映射与验证边界见 [批次 3 证据索引](docs/batch3-evidence.md) 和 [批次 3 验证记录](docs/batch3-validation.md)。
+
+第四批事实映射与验证边界见 [批次 4 证据索引](docs/batch4-evidence.md) 和 [批次 4 验证记录](docs/batch4-validation.md)。本批三个 CPU 例子不连接云平台、不执行模型命令、不创建容器。

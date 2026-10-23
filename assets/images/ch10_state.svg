@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="310" viewBox="0 0 1200 310" role="img">
+<title>多轮 shell 状态：磁盘持久化与进程状态不是一回事</title>
+<rect width="1200" height="310" fill="#f7f8fc"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#52657e"/></marker></defs>
+<g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, PingFang SC, sans-serif" fill="#18243b">
+<text x="40" y="40" dy="0.35em" font-size="27" text-anchor="start" fill="#18243b" font-weight="bold">多轮 shell 状态：磁盘持久化与进程状态不是一回事</text>
+<rect x="40" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="162" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">准备本轮</text>
+<text x="162" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">读取容器内状态文件</text>
+<text x="162" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">恢复导出变量与目录</text>
+<path d="M287 157 H323" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="332" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="454" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">执行模型命令</text>
+<text x="454" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">容器内解释命令文本</text>
+<text x="454" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">宿主不裸跑该字符串</text>
+<path d="M579 157 H615" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="624" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="746" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">正常走到保存点</text>
+<text x="746" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">保存导出变量与目录</text>
+<text x="746" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">返回命令退出码</text>
+<path d="M871 157 H907" fill="none" stroke="#52657e" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="916" y="95" width="244" height="125" rx="10" fill="white" stroke="#a0b2cd"/>
+<text x="1038" y="125" dy="0.35em" font-size="22" text-anchor="middle" fill="#18243b" font-weight="bold">下一轮调用</text>
+<text x="1038" y="162" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">重新载入保存状态</text>
+<text x="1038" y="189" dy="0.35em" font-size="17" text-anchor="middle" fill="#18243b" font-weight="normal">文件、会话分别检查</text>
+<text x="40" y="270" dy="0.35em" font-size="18" text-anchor="start" fill="#18243b" font-weight="normal">原理示意。直接退出、超时或进程被杀可能跳过保存点，不能保证完整会话快照。</text>
+</g></svg>
