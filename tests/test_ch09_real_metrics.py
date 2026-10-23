@@ -17,6 +17,12 @@ class Ch09EvidenceTests(unittest.TestCase):
         self.assertGreaterEqual(len(rows), 3)
         self.assertEqual(self.data["source"]["commit"], "ca57456")
         self.assertIn("DATA_SOURCE", (ROOT / "scripts/figures/ch09_rl_2b_24k.py").read_text(encoding="utf-8"))
+        provenance = (ROOT / "docs" / "ca57456-provenance.md").read_text(encoding="utf-8")
+        for marker in ("ca57456", "result/round2/results/rl_2b_24k_metrics.jsonl", "ch09_time_split.svg"):
+            self.assertIn(marker, provenance)
+        for name in ("ch09_loop.svg", "ch09_filters.svg", "ch09_mask.svg", "ch09_memory.svg"):
+            svg = (ROOT / "assets" / "images" / name).read_text(encoding="utf-8")
+            self.assertIn("Noto Sans CJK SC", svg)
         for row in rows:
             with self.subTest(step=row.get("step")):
                 self.assertGreaterEqual(row["reward_mean"], 0)
