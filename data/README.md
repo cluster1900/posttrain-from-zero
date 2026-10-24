@@ -41,7 +41,7 @@
 
 | 文件 | 来源与生成方式 |
 | --- | --- |
-| `ch05_token_boundary.json` | 读者实验：`examples/ch05_token_boundary_audit.py` 用源项目 `train/dataset.py`（提交 `ca57456`）在 SFT 成功轨迹 parquet（revision `9d6ab74`，SHA-256 `7507b499…e38a5`）上逐条构造训练样本，Qwen3.5-2B-Base tokenizer revision `b1485b2`。只存聚合计数和一个最小 token 例子，不含任务文本。 |
+| `ch05_token_boundary.json` | 读者实验（环境固定于 `requirements-ch05-audit.txt`：tokenizers 0.23.3 + transformers 5.20.2；tokenizers 0.22.2 + transformers 5.6.0 下两项 token 总数各多 1）：`examples/ch05_token_boundary_audit.py` 用源项目 `train/dataset.py`（提交 `ca57456`）在 SFT 成功轨迹 parquet（revision `9d6ab74`，SHA-256 `7507b499…e38a5`）上逐条构造训练样本，Qwen3.5-2B-Base tokenizer revision `b1485b2`。只存聚合计数和一个最小 token 例子，不含任务文本。 |
 | `ch06_lora_scale.json` | 参数量为读者在 meta device 上按官方 config（固定 revision）实例化所得；显存峰值摘自 round2 `sft_len_{2b,4b}_metrics.jsonl` 与 `formal_sft/metrics_{2b,4b}.jsonl`（`ca57456`），字段为 allocated 高水位。 |
 | `ch07_sft_metrics.json`（已有） | 7.8 节的耗时拟合由 `scripts/figures/ch05_07_real_data.py` 直接从此文件计算，第 1 步单列。 |
 

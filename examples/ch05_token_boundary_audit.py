@@ -8,8 +8,10 @@ and are unit-tested with a toy tokenizer.  ``main`` is OPTIONAL and needs:
   ``train/dataset.py`` builds the real SFT examples;
 * the public SFT parquet at revision 9d6ab74 (``--parquet``; SHA-256 must be
   7507b499…e38a5, the value recorded in the round1 data info file);
-* network access for the Qwen3.5-2B-Base tokenizer at revision b1485b2.
+* network access for the Qwen3.5-2B-Base tokenizer at revision b1485b2;
+* the exact environment in ``requirements-ch05-audit.txt`` (checked at start).
 
+    python -m pip install -r requirements-ch05-audit.txt
     python examples/ch05_token_boundary_audit.py --project ../src --parquet train.parquet
 """
 from __future__ import annotations
@@ -25,6 +27,14 @@ ROOT = Path(__file__).resolve().parents[1]
 PARQUET_SHA256 = "7507b499a0e9289086bb4befa4344f81c5d2ca91698e2ea22b81cc60834e38a5"
 TOKENIZER = ("Qwen/Qwen3.5-2B-Base", "b1485b2fa6dfa1287294f269f5fb618e03d52d7c")
 LENGTH_LIMITS = (16384, 24576, 32768)
+# Pinned in requirements-ch05-audit.txt; other versions shift the token totals.
+AUDIT_VERSIONS = {"tokenizers": "0.23.3", "transformers": "5.20.2"}
+
+
+def check_versions(found: dict[str, str]) -> None:
+    bad = {k: v for k, v in found.items() if AUDIT_VERSIONS.get(k) != v}
+    if bad:
+        raise SystemExit(f"install requirements-ch05-audit.txt; expected {AUDIT_VERSIONS}, found {bad}")
 
 
 def piecewise_ids(encode, text: str, cuts: list[int]) -> list[int]:
@@ -81,6 +91,9 @@ def main(argv=None):  # pragma: no cover - needs network, GPU-free but large
     sys.path.insert(0, str(args.project))
     import pyarrow.parquet as pq
     from transformers import AutoTokenizer
+    import tokenizers
+    import transformers
+    check_versions({"tokenizers": tokenizers.__version__, "transformers": transformers.__version__})
     from train import dataset as D
     from train.chat_format import apply_agent_chat_template
 

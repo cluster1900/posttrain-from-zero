@@ -2,7 +2,7 @@
 
 ## 动机
 
-第 3 章的审核发现，写上“LoRA”并不足以说明适配器装对了。Qwen3.5 不只有常见的 q/k/v/o 投影，还混合了 Gated DeltaNet；如果只凭旧模型的模块名单套配置，某些门控投影可能没有被覆盖。另一方面，权重文件里的名字、文本训练模型里的名字和推理端的名字也不相同。
+第 3 章的审核发现，写上“LoRA”只是起点，还要核对适配器装在了哪些模块上。Qwen3.5 不只有常见的 q/k/v/o 投影，还混合了 Gated DeltaNet；如果只凭旧模型的模块名单套配置，某些门控投影可能没有被覆盖。另一方面，权重文件里的名字、文本训练模型里的名字和推理端的名字也不相同。
 
 本章做一件具体的事：在 CPU 上创建随机微型模型，打印真实模块树，数清唯一参数，列出每个 LoRA 命中点，并用矩阵形状核验可训练参数量。它不加载正式权重，不证明预训练能力，也不复现原项目的 GPU 训练。读者首先应当能回答“改的是哪块矩阵”，再去讨论更大的性能问题。
 
@@ -14,21 +14,21 @@
 
 源设计文档记录官方架构名为 `Qwen3_5ForConditionalGeneration`，包含文本和视觉包装。项目的文本训练路径使用 `Qwen3_5ForCausalLM`，训练只需终端任务的文本序列，不据此宣布官方模型没有视觉结构。
 
-源 `train/model_utils.py` L36–37 区分文本权重前缀：训练端的 `model.` 与官方布局的 `model.language_model.`。导出与推理同步需要相应映射。名字能对上只是必要条件，形状、数值和接收端是否真正接受权重仍需测试。`tests/test_model_utils.py` 用随机微型官方布局 checkpoint 检查这些映射，而不是只看输出目录存在。
+源 `train/model_utils.py` L36–37 区分文本权重前缀：训练端的 `model.` 与官方布局的 `model.language_model.`。导出与推理同步需要相应映射。名字能对上只是必要条件，形状、数值和接收端是否真正接受权重仍需测试。`tests/test_model_utils.py` 用随机微型官方布局 checkpoint 检查这些映射。
 
 本书实验直接从文本配置构造 CausalLM，省去下载、保存、重新加载视觉包装的环节。它沿用原项目 fixture 的文本维度，不把自己的路径称为原项目测试完整复现。
 
 ### 6.2 两种注意力层和共同的 MLP
 
-源设计记录的真实架构排列是线性注意力与全注意力 **3∶1**。这是一种层类型排列，不是 75% 参数属于线性注意力，也不是延迟必然降低 75%。每类层的参数大小、激活和执行成本另有口径。
+源设计记录的真实架构排列是线性注意力与全注意力 **3∶1**。这是层类型的排列比例；每类层的参数大小、激活和执行成本另有口径。
 
 ![图 6-1　架构中的 3∶1 层类型示意；本章 CPU fixture 只取一层线性与一层全注意力。](images/ch06_layer_pattern.svg)
 
 全注意力层有 `q_proj`、`k_proj`、`v_proj`、`o_proj`。它们分别形成查询、键、值和输出投影。不要从名称猜测矩阵一定都是正方形：本章微型配置里，`q_proj` 的输出维度是 128，而隐藏维度是 64；应读取模块的 `in_features`、`out_features`，不要把所有投影统一写成 64×64。
 
-Gated DeltaNet 路径包括 `in_proj_qkv`、`in_proj_z`、`in_proj_a`、`in_proj_b` 与 `out_proj`。q/k/v 来自合并投影，卷积、递推状态、门控和输出投影共同完成这一层的计算。a 与 b 都是需要检查的门控相关投影，但不是同一个门：固定 Transformers 5.6.0 实现里，b 经 sigmoid 形成更新强度 beta，a 进入衰减量的计算。源项目的目标列表注释把它们统称 decay gates，本书保留模块名，但不把这句简称当作二者数学作用完全相同的证据。
+Gated DeltaNet 路径包括 `in_proj_qkv`、`in_proj_z`、`in_proj_a`、`in_proj_b` 与 `out_proj`。q/k/v 来自合并投影，卷积、递推状态、门控和输出投影共同完成这一层的计算。a 与 b 都是需要检查的门控相关投影，但作用不同：固定 Transformers 5.6.0 实现里，b 经 sigmoid 形成更新强度 beta，a 进入衰减量的计算。源项目的目标列表注释把它们统称 decay gates，本书保留模块名，作用以实现为准。
 
-两种层后面都有 MLP 的 `gate_proj`、`up_proj`、`down_proj`。门控分支与上投影相互作用，再降回隐藏维度；这里的 `gate_proj` 也不是 GDN 的 `in_proj_a/b`。名称中都带“门”，不表示可互相替代。
+两种层后面都有 MLP 的 `gate_proj`、`up_proj`、`down_proj`。门控分支与上投影相互作用，再降回隐藏维度；这里的 `gate_proj` 与 GDN 的 `in_proj_a/b` 是各自独立的模块，名字里都带“门”。
 
 ![图 6-2　全注意力与 Gated DeltaNet 的主要投影路径；共同接到 MLP，图仅表达职责而非完整方程。](images/ch06_attention.svg)
 
@@ -38,7 +38,7 @@ Gated DeltaNet 路径包括 `in_proj_qkv`、`in_proj_z`、`in_proj_a`、`in_proj
 
 embedding 把 token ID 映射成隐藏向量；norm 调整层内数值尺度；`lm_head` 把最终隐藏向量映射回词表分数。源项目词表为 248,320，配置使用共享输入／输出权重，也就是 tie embedding。
 
-共享不是“两个数值相同的副本”。在本章实例中，输入 embedding 与输出 head 的 weight 是同一个 Parameter 对象。按模块分别相加会重复计数；`parameters()` 的去重遍历才是本章“唯一参数量”的分母。与此同时，推理时输出头仍要做计算，冻结或共享权重并不会让词表投影成本消失。
+共享指同一个对象：在本章实例中，输入 embedding 与输出 head 的 weight 是同一个 Parameter 对象。按模块分别相加会重复计数；`parameters()` 的去重遍历才是本章“唯一参数量”的分母。冻结或共享之后，推理时输出头仍要做完整的词表投影。
 
 ## 检查方法与代码
 
@@ -53,7 +53,7 @@ pytest -q tests/test_ch06_model_structure.py
 
 程序按以下顺序完成检查：
 
-1. 用 `Qwen3_5TextConfig` 构造两层随机文本模型。一层 `linear_attention`，一层 `full_attention`；hidden=64、intermediate=128、词表=248320、共享 embedding。它来自源 `tests/conftest.py` 的微型文本配置，不是完整 2B 的层数和宽度。
+1. 用 `Qwen3_5TextConfig` 构造两层随机文本模型。一层 `linear_attention`，一层 `full_attention`；hidden=64、intermediate=128、词表=248320、共享 embedding。它来自源 `tests/conftest.py` 的微型文本配置。
 2. 遍历 `named_modules()`，打印名字与类型，汇总模块类型计数。该 API 的意义见 [PyTorch Module 文档](https://docs.pytorch.org/docs/2.10/generated/torch.nn.Module.html)。
 3. 在安装适配器前记录唯一基座参数和 embedding 参数；按 12 个目标叶名称找到实际 `Linear` 模块，读取每个矩阵的输入／输出维度。
 4. 安装 PEFT LoRA：r=64、alpha=64、dropout=0、bias=none、CAUSAL_LM。只训练低秩增量，不训练基座。
@@ -65,20 +65,20 @@ pytest -q tests/test_ch06_model_structure.py
 
 ### 6.5 怎样读这次输出
 
-下面全部标为 **【读者运行所得】**。本书固定教学环境实际生成 `data/ch06_tiny_parameters.json`，CI 重新构造并核对；它不是原训练项目当年的参数统计。
+下面全部标为 **【读者运行所得】**。本书固定教学环境实际生成 `data/ch06_tiny_parameters.json`，CI 重新构造并核对。
 
 | 项目 | 本章两层微型文本模型的输出 | 口径 |
 | --- | --- | --- |
 | 唯一基座参数 | 15,975,800 | 安装 LoRA 前；共享 head 不重复计数 |
 | embedding 唯一参数 | 15,892,480 | 248,320 × 64，已包含在上一行 |
 | LoRA 可训练参数 | 143,872 | 15 个投影实例的低秩增量之和 |
-| 安装适配器后的唯一参数 | 16,119,672 | 基座 + LoRA，不是二者取平均 |
+| 安装适配器后的唯一参数 | 16,119,672 | 基座 + LoRA 之和 |
 | 可训练占比 | 约 0.8925% | 143,872 / 16,119,672 |
 | 目标叶名称／实际命中实例 | 12 类／15 个 | 两层 MLP 都包含三个目标名称 |
 
-“12 个 target_modules”说的是 12 种叶名称，不是完整网络只有 12 个适配器。一个名称在多层出现会命中多个实例。反过来，只检查总数可能漏掉错误分配：少装一块、多装另一块，参数量可能碰巧接近。因此本书同时检查目标集合、逐实例形状和总和。
+“12 个 target_modules”说的是 12 种叶名称。一个名称在多层出现会命中多个实例。反过来，只检查总数可能漏掉错误分配：少装一块、多装另一块，参数量可能碰巧接近。因此本书同时检查目标集合、逐实例形状和总和。
 
-![图 6-4　两层微型模型的唯一参数与可训练参数，均为读者 CPU 实验所得；不是完整 2B 模型统计。](images/plots/ch06_parameters.png)
+![图 6-4　两层微型模型的唯一参数与可训练参数，均为读者 CPU 实验所得（两层微型模型）。](images/plots/ch06_parameters.png)
 
 ### 6.6 可选的真实规模配置检查
 
@@ -88,13 +88,13 @@ pytest -q tests/test_ch06_model_structure.py
 python -m examples.ch06_official_config_optional
 ```
 
-该入口只下载官方 `Qwen/Qwen3.5-2B-Base` 在 revision `b1485b2fa6dfa1287294f269f5fb618e03d52d7c` 的 `config.json`，在 meta device 上构造文本模型形状，不下载权重、不创建 GPU。输出明确只统计文本骨干和共享输出头，排除视觉塔；meta 张量没有真实数值，不能据此测试 forward 正确性。任何从这个入口取得的数字都必须标为读者运行所得，不能回填成项目日志曾经记录过的数字。
+该入口只下载官方 `Qwen/Qwen3.5-2B-Base` 在 revision `b1485b2fa6dfa1287294f269f5fb618e03d52d7c` 的 `config.json`，在 meta device 上构造文本模型形状，不下载权重、不创建 GPU。输出明确只统计文本骨干和共享输出头，排除视觉塔；meta 张量没有真实数值。
 
 ## LoRA 目标模块与超参数
 
 ### 6.7 配置值与矩阵公式分别核对
 
-源 2B SFT、2B RL 与 4B SFT YAML 均配置 r=64、alpha=64、dropout=0.0；目标为全注意力四类、GDN 五类、MLP 三类。`apply_lora` 另明确 `bias="none"`、`task_type="CAUSAL_LM"`。这些是项目配置事实，不是本章搜索得到的最优超参数。
+源 2B SFT、2B RL 与 4B SFT YAML 均配置 r=64、alpha=64、dropout=0.0；目标为全注意力四类、GDN 五类、MLP 三类。`apply_lora` 另明确 `bias="none"`、`task_type="CAUSAL_LM"`。这些是项目配置事实。
 
 对一个输入宽度为 d_in、输出宽度为 d_out 的无偏置线性层，LoRA 新增 A 的 r×d_in 和 B 的 d_out×r，因此新增量为 r(d_in+d_out)。本章的缩放 alpha/r=1。缩放等于 1 不表示更新恒为 1，也不表示 rank 不再影响可训练空间。LoRA 的技术归属是 Hu 等的[原论文](https://arxiv.org/abs/2106.09685)，PEFT 的配置接口见[官方 LoRA 文档](https://huggingface.co/docs/peft/main/en/package_reference/lora)。
 
@@ -107,11 +107,11 @@ python -m examples.ch06_official_config_optional
 | 两层 MLP | 每层 gate/up:64→128，down:128→64 | 12,288×6 = 73,728 |
 | 合计 | 15 个线性投影实例 | 143,872 |
 
-r=64 在这个微型模型里并不一定比每块原矩阵都“低秩节省”，尤其 a/b 输出只有 4。此例故意保留项目 r 值以验证接口和公式，不能拿微型网络上每块增量／基座比例来证明真实规模的经济性。
+r=64 在这个微型模型里未必比每块原矩阵更省，尤其 a/b 输出只有 4。此例故意保留项目 r 值以验证接口和公式；真实规模的账见下一节。
 
 ## 冻结与训练的参数
 
-LoRA 安装后，基座矩阵、embedding、norm 与输出头全部保持冻结；训练集合只含 A/B。这里的“冻结”指 `requires_grad=False`，不等于在 forward 中完全绕开这些模块。
+LoRA 安装后，基座矩阵、embedding、norm 与输出头全部保持冻结；训练集合只含 A/B。这里的“冻结”指 `requires_grad=False`；forward 仍会经过这些模块。
 
 项目还对输出头提出一个实现约束。以下是 `train/model_utils.py` L119–122，提交 `ca57456` 的连续静态摘录，原样保留，只供阅读：
 
@@ -122,7 +122,7 @@ def _assert_head_frozen(peft_model) -> None:
         raise RuntimeError("lm_head must stay frozen under LoRA (the fp32 head copy is cached once)")
 ```
 
-【记录事实】冻结 head 不只是参数高效训练的一般习惯：实现会缓存一次 fp32 head 副本。如果原 head 之后还被优化器改变，副本可能过时。输入 embedding 与 head 共享时，也不能只检查名字叫 `lm_head` 的参数而忽略别名。风险 R5、R18 及测试补上了这条边界。
+【记录事实】冻结 head 还有实现上的理由：实现会缓存一次 fp32 head 副本。如果原 head 之后还被优化器改变，副本可能过时。输入 embedding 与 head 共享时，检查要覆盖别名，只看名为 `lm_head` 的参数会漏掉。风险 R5、R18 及测试补上了这条边界。
 
 ### 真实规模：2B 与 4B 的可训练参数和显存
 
@@ -155,6 +155,16 @@ def _assert_head_frozen(peft_model) -> None:
 两点可以直接读出来。第一，LoRA 自身的全部训练状态只占峰值的 7%（2B）到 9%（4B），真正大的是基座权重和激活；r=64 再调小，省不出多少显存。第二，fp32 输出头副本在 2B 上（1.89 GiB）比全部 LoRA 状态还大，原因是 248,320 的词表让 embedding 占了 2B 参数的 27%。这也是上面那条“head 必须冻结”约束的代价。
 
 
+## 边界说明
+
+本章数字的来源与适用范围集中写在这里：
+
+- **微型模型的数字只属于微型模型。** 6.4–6.5 与图 6-4 来自两层随机文本模型（hidden=64，源 `tests/conftest.py` 配置），由本书教学环境生成、CI 重算；既不是完整 2B 的层数和宽度，也不是原项目当年的参数统计。其中 143,872 是微型模型的可训练参数量，正式 2B/4B 的数字见“真实规模”一节。
+- **3∶1 是层类型比例。** 它不表示 75% 参数属于线性注意力，也不表示延迟降低 75%。
+- **meta device 入口只给形状。** 6.6 的张量没有数值，不能测 forward 正确性；从它得到的数字标为读者运行所得，不回填成项目日志记录过的数字。
+- **超参数是项目配置，不是本章的搜索结果。** r=64、alpha=64、dropout=0 没有可核验的消融记录，本书不称其最优；微型网络上每块增量／基座的比例也不能说明真实规模的经济性。
+- **公式核对不是决策复原。** 参数公式能重算，不代表作者当时按这套步骤决策；本章不替作者补写每个 norm 冻结的动机。
+
 ## 坑与修复
 
 | 现象 | 根因 | 修复 | 证据 |
@@ -169,9 +179,7 @@ def _assert_head_frozen(peft_model) -> None:
 
 【记录事实】源 `09_custom_training_design.md` §1.3 将 LoRA 与单卡 40GB 预算联系起来；`00_progress.md` §6.2 记录补齐 GDN 门控目标；head 冻结有缓存一致性的代码理由。它们可以说明项目做过什么，以及记录里明确写了什么约束。
 
-【读者运行所得】本章验证了目标集合、形状、冻结状态和参数公式。公式不等于作者曾经按这套步骤决策；143,872 不是项目正式2B的可训练参数量。
-
-没有可核验的选择过程，就不声称 r64、alpha64、dropout0 是经消融最优，也不替作者补写每个 norm 冻结的心理动机。本章止于已记录的理由与既定结构实验，不把额外事后分析包装成历史事实。
+【读者运行所得】本章验证了目标集合、形状、冻结状态和参数公式；超参数与冻结选择的动机，只写记录里有的部分（见边界说明）。
 
 ## 本章出处
 

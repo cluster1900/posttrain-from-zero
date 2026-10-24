@@ -1,0 +1,14 @@
+# Exact environment for the OPTIONAL ch05 real-data audit
+# (examples/ch05_token_boundary_audit.py -> data/ch05_token_boundary.json).
+# Verified 2026-10-24: a clean venv from this file reproduces the committed JSON
+# byte-for-byte; tokenizers 0.22.2 + transformers 5.6.0 (requirements-examples.txt)
+# gives total_tokens_piecewise/whole one higher. transformers 5.6.0 caps
+# tokenizers at <=0.23.0, so the pair is pinned together, in its own file.
+huggingface_hub==2.3.0
+jinja2==3.1.6
+numpy==2.5.4
+pyarrow==26.0.0
+regex==2026.9.29
+safetensors==0.8.0
+tokenizers==0.23.3
+transformers==5.20.2
