@@ -117,7 +117,7 @@ assert "<|endoftext|>" not in assembled
 
 ## 5.7 在 5,795 条真实轨迹上量一量边界
 
-前面的教学例子只比较文本。这一节换成真实数据：源项目 SFT 实际读取的 5,795 条成功轨迹（数据 revision `9d6ab74`，parquet SHA-256 `7507b499…e38a5`，与 round1 交接记录一致），直接调用源项目 `train/dataset.py` 的 `build_sft_example`（提交 `ca57456`），用 Qwen3.5-2B-Base tokenizer（revision `b1485b2`）编码。脚本是 `examples/ch05_token_boundary_audit.py`，汇总写入 `data/ch05_token_boundary.json`；在 CPU 上全量跑一遍约 286 秒。【读者运行所得】
+前面的教学例子只比较文本。这一节换成真实数据：源项目 SFT 实际读取的 5,795 条成功轨迹（数据 revision `9d6ab74`，parquet SHA-256 `7507b499…e38a5`，与 round1 交接记录一致），直接调用源项目 `train/dataset.py` 的 `build_sft_example`（提交 `ca57456`），用 Qwen3.5-2B-Base tokenizer（revision `b1485b2`）编码。脚本是 `examples/ch05_token_boundary_audit.py`，汇总写入 `data/ch05_token_boundary.json`；在 CPU 上全量跑一遍约 286 秒。【读者运行所得】本节引用的全部审计数字都来自 `requirements-ch05-audit.txt` 固定的环境：tokenizers 0.23.3 + transformers 5.20.2，在此环境下可逐字节复现该 JSON；若改用 tokenizers 0.22.2 + transformers 5.6.0（`requirements-examples.txt`），分段编码和整段编码的两项 token 总数（`total_tokens_piecewise`、`total_tokens_whole`）各多 1，其余计数不变。
 
 先核对这次复现和项目记录是否同一份数据：按 16,384／24,576／32,768 的长度上限，分别保留 5,330／5,618／5,711 条；全部样本共 48,640,561 个 token，其中 21,959,803 个参与 loss。这四个数与源 `docs/apexo/03_data_plan.md` §3.3 记录的 5,330／5,618／5,711、48.6M、21.96M 一致，所以下面的统计说的就是项目训练用的那份数据。
 
@@ -151,6 +151,7 @@ assert "<|endoftext|>" not in assembled
 
 本章的实验范围与几条容易被误读的结论，集中写在这里：
 
+- **审计数字绑定环境。** 5.7 的计数来自 tokenizers 0.23.3 + transformers 5.20.2（`requirements-ch05-audit.txt`）；用 0.22.2／5.6.0 时两项 token 总数各多 1。
 - **示例是构造的。** 5.2–5.4 的文本示意、虚构任务和简化序列化器均为本书编写，不取自训练数据，不联网、不读正式 tokenizer、不执行命令。CPU 小例子只验证文本与 UTF-8 字节层；token 层的结论只来自 5.7 的真实 tokenizer 复核。
 - **教学解析器比源解析器严格。** 它是理解合同用的实验，不能逐字替代源 `parse_assistant_response`，也不是可部署的 XML 解析器或沙箱。
 - **观测截断按字符计。** 10,000 字符的阈值无法换算成固定的 token 开销；被截断的工具输出只是头尾各 5,000 字符。
