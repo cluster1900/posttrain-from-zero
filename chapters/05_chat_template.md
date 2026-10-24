@@ -44,7 +44,7 @@ printf 'toy'
 </tool_call><|im_end|>
 ```
 
-这个例子里有三种不同的“结束”。`</think>` 结束思考段；`</tool_call>` 结束调用文本；`<|im_end|>` 结束 assistant 轮。它们不能互换。解析器识别调用后，环境还要核对工具数量和名称；“解析到两个调用”不等于“允许执行两个调用”。源项目解析层可返回多个候选调用，环境层执行“恰好一个 bash 调用”的合同。
+这个例子里有三种不同的“结束”。`</think>` 结束思考段；`</tool_call>` 结束调用文本；`<|im_end|>` 结束 assistant 轮。它们不能互换。解析器识别调用后，环境还要核对工具名称。源项目在 RL 环境和 SFT 数据里对多个调用的处理不同：`train/agent_env.py` 按出现顺序执行同一轮里的每个调用，每个调用消耗一步回合预算，遇到提交即结束（提交 `a5a8046` 起，对齐参考实现）；SFT 的 `_valid_bash_calls` 则只把恰好一个非空 bash 调用的轮次当作可训练轮。
 
 思考段里提到一个调用，不应触发工具。`parse_assistant_response` 先分离思考与正文，未闭合 `<think>` 的回答返回没有工具调用的状态；测试专门覆盖思考段中的伪调用。相反，一段没有显式思考标签的完整 assistant 内容也可能出现在评测轨迹中，源解析器对此有单独分支。因此不能把本章较严格的教学解析器当成源解析器的逐字替代。
 
@@ -115,10 +115,64 @@ assert "<|endoftext|>" not in assembled
 
 最有效的排错材料通常不是一张长截图，而是一份最小消息列表、两条构造路径的文本差异、对应 token ID 与 mask 位置。把这些保留下来，后续才有机会区分数据清洗问题、模板问题、模型同步问题和真实策略行为。
 
+## 5.7 在 5,795 条真实轨迹上量一量边界
+
+前面的教学例子只比较文本。这一节换成真实数据：源项目 SFT 实际读取的 5,795 条成功轨迹（数据 revision `9d6ab74`，parquet SHA-256 `7507b499…e38a5`，与 round1 交接记录一致），直接调用源项目 `train/dataset.py` 的 `build_sft_example`（提交 `ca57456`），用 Qwen3.5-2B-Base tokenizer（revision `b1485b2`）编码。脚本是 `examples/ch05_token_boundary_audit.py`，汇总写入 `data/ch05_token_boundary.json`；在 CPU 上全量跑一遍约 286 秒。【读者运行所得】
+
+先核对这次复现和项目记录是否同一份数据：按 16,384／24,576／32,768 的长度上限，分别保留 5,330／5,618／5,711 条；全部样本共 48,640,561 个 token，其中 21,959,803 个参与 loss。这四个数与源 `docs/apexo/03_data_plan.md` §3.3 记录的 5,330／5,618／5,711、48.6M、21.96M 一致，所以下面的统计说的就是项目训练用的那份数据。
+
+![图 5-3　5,795 条成功轨迹的 assistant 轮数分布：中位数 11 轮，最少 3 轮；64 轮处有 47 条堆积，而 50 轮以上其他各档都不超过 7 条，推测采集时有 64 轮上限（数据里没有记录上限本身）。数据：data/ch05_token_boundary.json。](images/plots/ch05_turns.svg)
+
+轮数决定了边界的数量。每个 assistant 轮在渲染文本里切出两个边界（生成前缀之后、`<|im_end|>` 之后），全数据共 164,406 个边界。项目的做法是**分段编码**：在每个边界处把文本切开，各段单独编码再拼接（`train/dataset.py` L7–10 的注释写明了理由）。如果改成整段一次编码，会有多大差别？
+
+| 统计项 | 数值 |
+| --- | --- |
+| 分段编码与整段编码 token 序列完全相同的轨迹 | 754 条 |
+| 两者不同的轨迹 | 5,041 条（87.0%） |
+| 被整段编码的某一个 token 跨越的边界 | 24,977 / 164,406 |
+| 其中位于 assistant 片段起点的 | 24,977（全部） |
+| 分段编码多出的 token 总数 | 24,977（占 48,640,561 的 0.051%） |
+
+每条轨迹“分段比整段多出的 token 数”都恰好等于它被跨越的边界数，5,795 条逐条相等。被跨越的边界全部是同一种：思考为空的 assistant 轮，渲染出 `<think>\n\n</think>`，而切口正好落在两个换行之间。最小例子如下（ID 来自 `data/ch05_token_boundary.json` 的 `minimal_example`）：
+
+| 编码方式 | token |
+| --- | --- |
+| 分段：前缀 | `<|im_start|>`(248045) `assistant` `\n` `<think>`(248068) `\n`(198) |
+| 分段：生成部分 | `\n`(198) `</think>`(248069) `\n\n`(271) `<tool_call>` |
+| 整段一次编码 | … `<think>`(248068) `\n\n`(271) `</think>`(248069) … |
+
+整段编码把两个换行合成了 ID 271，这个 token 一半属于提示、一半属于模型生成。rollout 时模型拿到的提示以 `<think>\n` 结尾，接下来生成的第一个 token 只能是 198，不可能是 271。所以分段编码才和推理时的 token 序列一致；整段编码会让 SFT 在 30.4% 的 assistant 轮（24,977 / 82,203）上学一个推理时永远不会出现的开头，监督掩码也无法干净地落在这个 token 上。
+
+![图 5-4　每条轨迹分段编码比整段编码多出的 token 数分布；0 表示两者相同（754 条）。多出的 token 数等于被跨越的边界数。数据：data/ch05_token_boundary.json。](images/plots/ch05_token_boundary.svg)
+
+同一次运行还给出了数据清洗计数（`build_sft_example` 的 stats）：528 条 assistant 消息的正文里混有思考标签，标签被删掉；1,333 个轮次渲染时没有 `<think>` 前缀，不参与训练；378 个轮次没有工具调用，2 个轮次的工具调用不合规，也都不参与训练。5,795 条全部至少保留一个可训练轮，没有因此整条丢弃。
+
+## 坑与修复
+
+| 现象 | 根因 | 修复 | 证据 |
+| --- | --- | --- | --- |
+| 空思考轮整段编码后 `\n\n` 合成 ID 271，横跨提示与生成边界（全数据 24,977 处） | BPE 跨字符串边界合并；推理时提示以 `<think>\n` 结尾，模型先生成 198 | 在每个片段边界分段编码，再拼接 | `train/dataset.py` L7–10，引入于提交 `fbf621e`（10-11）；本章 5.7 的全量复核 |
+| assistant 正文里混有 `<think>`／`</think>` 标签（528 条消息） | 原始轨迹把思考标签写进了 content，渲染后思考段边界会错位 | 删除标签并计数 `stray_think_tag_removed`（528 处） | `train/dataset.py` L72，提交 `fbf621e` |
+| 格式错误反馈之后，前面的空思考轮渲染时没有 `<think>` 前缀 | 源注释原话：format-error feedback user turns make earlier empty-reasoning turns render without `<think>` | 无前缀的轮次不打标签，计数 `turn_without_think_prefix`（1,333 个） | `train/dataset.py` L14、L129，提交 `fbf621e` |
+| 一轮里出现多个工具调用时，执行方式与参考实现不一致 | 环境层的多调用处理没有对齐参考实现的工具循环 | 按出现顺序执行每个调用，每个调用消耗一步预算，遇到提交即结束，每个调用返回一个观测 | `train/agent_env.py`（多调用循环），提交 `a5a8046`（10-12） |
+| 生成以 `<|endoftext|>` 而不是 `<|im_end|>` 结束，外来停止符进入训练序列 | 官方 Base 的 eos 只有 248044 | 去掉外来停止符及其 logprob，用不计 loss 的 `<|im_end|>` 收尾并计数 | 提交 `33f3cc5`（10-12） |
+| 服务端越过轮次边界继续生成，16K 截断引发 `format_error` 和 HTTP 400 | `vllm serve` 没把 `<|im_end|>`(248046) 设为停止符 | `--override-generation-config` 设 `eos_token_id=[248046,248044]`，导出时写入 `generation_config.json` | R48；提交 `c33ee0d`（10-19） |
+
+## 时间线、花费与教训
+
+模板与分词合同的工作集中在 10-10 至 10-12：初始框架 `047c932`（10-10），分段编码与清洗计数 `fbf621e`（10-11），多调用顺序执行 `a5a8046` 和外来停止符修复 `33f3cc5`（10-12）。停止符在服务端的后果直到 round10 评测才暴露，修复在 `c33ee0d`（10-19）。这部分全部在 CPU 上开发和测试，没有单独的 GPU 花费记录；本节复核也只用了约 286 秒 CPU。
+
+教训：
+
+1. **在真实数据上量边界，不要只在玩具样例上比文本。** 文本完全相同的情况下，87% 的轨迹 token 序列仍然不同。
+2. **以推理时的 token 序列为准。** 训练序列应该是“提示的编码 + 模型实际生成的 token”，而不是把整段文本重新编码。
+3. **清洗要计数。** 528、1,333、378 这类数字让人能判断清洗规则到底影响了多少数据。
+
 ## 本章出处
 
 - `configs/chat_templates/qwen35_agent.jinja`：项目统一模板及两项相对官方模板的改动说明。提交 `ca57456`。
 - `train/chat_format.py` L190–194 及解析／观测函数；`tests/test_chat_format.py`：前缀、连续观测、增量／整段渲染、解析边界。提交 `ca57456`。
 - `train/model_utils.py` 的 `load_tokenizer`、`train/dataset.py`、`train/rollout.py`：模板安装、监督与追加路径。提交 `ca57456`；停止符相关历史修复另见提交 `33f3cc5`。
 - `docs/apexo/06_risks_and_decisions.md` R48；`docs/apexo/00_progress.md`：后期停止符问题的记录，未倒写成早期训练结果。提交 `ca57456`。
-- 本书 `examples/ch05_chat_template.py` 与对应测试：原创文本级教学，非正式 tokenizer 或沙箱验收。
+- 本书 `examples/ch05_chat_template.py` 与对应测试：原创文本级教学。
+- 本书 `examples/ch05_token_boundary_audit.py`、`data/ch05_token_boundary.json`、`scripts/figures/ch05_07_real_data.py`：5.7 节的全量复核，调用源项目 `train/dataset.py`（提交 `ca57456`）；`docs/apexo/03_data_plan.md` §3.3 的保留条数与 token 总数用于交叉核对。提交 `fbf621e`、`a5a8046`、`33f3cc5`、`c33ee0d` 见坑表。
