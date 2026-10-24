@@ -64,3 +64,14 @@ class AuditTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AuditPinTests(unittest.TestCase):
+    def test_runtime_guard_matches_pin_file(self):
+        import re
+        pins = dict(re.findall(r'^([a-z_]+)==(\S+)$', (Path(A.ROOT) / 'requirements-ch05-audit.txt').read_text(), re.M))
+        for name, version in A.AUDIT_VERSIONS.items():
+            self.assertEqual(pins[name], version)
+        A.check_versions(dict(A.AUDIT_VERSIONS))
+        with self.assertRaises(SystemExit):
+            A.check_versions({"tokenizers": "0.22.2", "transformers": "5.6.0"})
