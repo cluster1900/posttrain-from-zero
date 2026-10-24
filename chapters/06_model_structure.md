@@ -82,7 +82,7 @@ pytest -q tests/test_ch06_model_structure.py
 
 ### 6.6 可选的真实规模配置检查
 
-`examples/ch06_official_config_optional.py` 是单独的可选联网入口，真实联网／模型构造不进 CI；CI 只用假下载器检查它的固定 revision 与 config-only 合同。本批未运行它，也没有在正文填写其输出。需要时由读者显式运行：
+`examples/ch06_official_config_optional.py` 是单独的可选联网入口，真实联网／模型构造不进 CI；CI 只用假下载器检查它的固定 revision 与 config-only 合同。它的实际输出见本章“冻结与训练的参数”一节的 2B/4B 对比。需要时由读者显式运行：
 
 ```bash
 python -m examples.ch06_official_config_optional
@@ -124,6 +124,37 @@ def _assert_head_frozen(peft_model) -> None:
 
 【记录事实】冻结 head 不只是参数高效训练的一般习惯：实现会缓存一次 fp32 head 副本。如果原 head 之后还被优化器改变，副本可能过时。输入 embedding 与 head 共享时，也不能只检查名字叫 `lm_head` 的参数而忽略别名。风险 R5、R18 及测试补上了这条边界。
 
+### 真实规模：2B 与 4B 的可训练参数和显存
+
+把 6.6 的可选入口分别指向两个官方 config（2B revision `b1485b2`，4B revision `1001bb4`），在 meta device 上按项目的 r=64、12 类目标安装 LoRA，得到下表。【读者运行所得】参数量由官方 config 和项目 LoRA 配置决定，与项目是否打印过无关；`data/ch06_lora_scale.json` 保存全部数值，测试逐项核对。
+
+| 项目 | 2B | 4B |
+| --- | --- | --- |
+| 隐藏宽度／层数 | 2,048／24 | 2,560／32 |
+| 文本骨干唯一参数（含共享 embedding） | 1,881,825,088 | 4,205,751,296 |
+| 其中 embedding（与输出头共享） | 508,559,360 | 635,699,200 |
+| LoRA 可训练参数 | 67,276,800（3.45%） | 129,859,584（3.00%） |
+| 正式长度短跑 allocated 峰值（GiB，5 步 + 续训 1 步） | 12.8 ×5，10.78 | 15.87、17.2、17.31、18.08、18.08、17.13 |
+| 正式 SFT allocated 峰值（GiB） | 13.91 | 21.64 |
+
+显存峰值来自 round2 的 `sft_len_{2b,4b}_metrics.jsonl` 和 `formal_sft/metrics_{2b,4b}.jsonl`（提交 `ca57456`），字段是 `torch.cuda.max_memory_allocated / 2**30`。
+
+这些参数量能解释峰值里的多少？按项目代码的实际 dtype 逐项算：基座权重 bf16，每参数 2 字节；`frozen_head_weight` 额外缓存一份 fp32 输出头，每参数 4 字节；LoRA 参数在 PEFT 0.18.1 默认 `autocast_adapter_dtype=True` 下是 fp32（项目 `apply_lora` 用默认参数调用 `get_peft_model`，本书在 CPU 上复核了 bf16 基座上的 LoRA 参数确为 float32），加上梯度和 AdamW 的两份状态，每参数 16 字节。
+
+| GiB | 2B | 4B |
+| --- | --- | --- |
+| 基座权重 bf16 | 3.51 | 7.83 |
+| 输出头 fp32 副本 | 1.89 | 2.37 |
+| LoRA 参数 + 梯度 + AdamW（fp32） | 1.00 | 1.94 |
+| 静态合计 | 6.40 | 12.14 |
+| 正式 SFT 峰值 | 13.91 | 21.64 |
+| 其余：激活与临时张量 | 7.51 | 9.50 |
+
+![图 6-5　正式 SFT allocated 峰值的拆解：静态部分由参数量和 dtype 算出，其余为激活与临时张量。数据：data/ch06_lora_scale.json。](images/plots/ch06_lora_scale.svg)
+
+两点可以直接读出来。第一，LoRA 自身的全部训练状态只占峰值的 7%（2B）到 9%（4B），真正大的是基座权重和激活；r=64 再调小，省不出多少显存。第二，fp32 输出头副本在 2B 上（1.89 GiB）比全部 LoRA 状态还大，原因是 248,320 的词表让 embedding 占了 2B 参数的 27%。这也是上面那条“head 必须冻结”约束的代价。
+
+
 ## 坑与修复
 
 | 现象 | 根因 | 修复 | 证据 |
@@ -147,4 +178,5 @@ def _assert_head_frozen(peft_model) -> None:
 - `docs/apexo/09_custom_training_design.md` §1、§1.3：架构、词表、共享 embedding 与已记录设计取舍；`00_progress.md` §1.1、§6.2。提交 `ca57456`。
 - `train/model_utils.py` 的目标列表、前缀映射、`apply_lora` 及 L119–122；`tests/test_model_utils.py`、`tests/conftest.py`、`docs/apexo/05_testing_plan.md`。提交 `ca57456`。
 - `configs/sft/qwen35_2b_lora.yaml`、`configs/rl/qwen35_2b.yaml`、`configs/sft/qwen35_4b_lora.yaml`；风险登记 R4、R5、R11、R18。提交 `ca57456`。
+- `result/round2/results/sft_len_2b_metrics.jsonl`、`sft_len_4b_metrics.jsonl`、`formal_sft/metrics_{2b,4b}.jsonl`；`train/model_utils.py` 的 `frozen_head_weight`、`apply_lora`。提交 `ca57456`。本书 `data/ch06_lora_scale.json` 与 `scripts/figures/ch05_07_real_data.py`。
 - Transformers 5.6.0 的 Qwen3.5 实现、PEFT 0.18.1；本书 `examples/ch06_model_structure.py`、`data/ch06_tiny_parameters.json` 与对应测试。参数数字为本书 CPU 读者实验。

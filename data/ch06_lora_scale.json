@@ -1,0 +1,68 @@
+{
+  "source": {
+    "commit": "ca57456",
+    "memory_files": [
+      "result/round2/results/sft_len_2b_metrics.jsonl",
+      "result/round2/results/sft_len_4b_metrics.jsonl",
+      "result/round2/results/formal_sft/metrics_{2b,4b}.jsonl"
+    ],
+    "parameter_method": "examples/ch06_official_config_optional.py 的 inspect_model(meta=True)，官方 config.json 固定 revision，r=64/alpha=64/12 类目标；读者运行所得，不是项目日志",
+    "memory_field": "peak_mem_gb = torch.cuda.max_memory_allocated / 2**30（allocated 高水位，非整卡物理占用）"
+  },
+  "models": {
+    "2b": {
+      "revision": "b1485b2fa6dfa1287294f269f5fb618e03d52d7c",
+      "hidden_size": 2048,
+      "num_hidden_layers": 24,
+      "base_unique_parameters": 1881825088,
+      "embedding_unique_parameters": 508559360,
+      "lora_trainable_parameters": 67276800,
+      "trainable_fraction": 0.03451682049779021,
+      "sft_len_max_seq_len": 24576,
+      "sft_len_peak_mem_gb": [
+        12.8,
+        12.8,
+        12.8,
+        12.8,
+        12.8,
+        10.78
+      ],
+      "sft_len_label_tokens": [
+        6726.0,
+        5009.0,
+        11246.0,
+        11846.0,
+        3283.0,
+        4333.0
+      ],
+      "formal_peak_mem_gb_max": 13.91
+    },
+    "4b": {
+      "revision": "1001bb4d826a52d1f399e183466143f4da7b741b",
+      "hidden_size": 2560,
+      "num_hidden_layers": 32,
+      "base_unique_parameters": 4205751296,
+      "embedding_unique_parameters": 635699200,
+      "lora_trainable_parameters": 129859584,
+      "trainable_fraction": 0.029951853981877635,
+      "sft_len_max_seq_len": 20480,
+      "sft_len_peak_mem_gb": [
+        15.87,
+        17.2,
+        17.31,
+        18.08,
+        18.08,
+        17.13
+      ],
+      "sft_len_label_tokens": [
+        4763.0,
+        3846.0,
+        7960.0,
+        6237.0,
+        5226.0,
+        4158.0
+      ],
+      "formal_peak_mem_gb_max": 21.64
+    }
+  }
+}
